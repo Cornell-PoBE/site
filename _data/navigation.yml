@@ -1,0 +1,7 @@
+main:
+  - title: "About"
+    url: /about/
+  - title: "Lecture Notes"
+    url: /notes/
+  - title: "GitHub"
+    url: https://github.com/Cornell-PoBE

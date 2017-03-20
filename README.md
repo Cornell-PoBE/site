@@ -17,13 +17,13 @@ jekyll serve
 
 ## Making Posts
 
-The top of post's file must be the following:
+The file must be in the `_posts` directory and its name must be the following:
 
 ````
 YYYY-MM-DD-my-post-title.md
 ````
 
-The top must have the following:
+The top of the file must have the following:
 
 ````
 ---

@@ -34,9 +34,9 @@ The communication protocol is a system of strict rules that would allow a set of
 | IEEE 802.3u	  | Physical        |
 
 
-In this class, you will only need to understand three protocols within the transport and application layer, at a very high level. However if you would like to dig deeper into networking, definitely check out the networking slides from CS4410, 2015fa, [here](http://www.cs.cornell.edu/courses/cs4410/2015fa/slides/08-networking.pdf). 
+In this class, you will only need to understand three protocols within the transport and application layer, at a very high level. However if you would like to dig deeper into networking, definitely check out the networking slides from CS4410, 2015fa, [here](http://www.cs.cornell.edu/courses/cs4410/2015fa/slides/08-networking.pdf).
 
-In this class we will focus on the Internet Protocol (IP) which is a principal protocol communication stack for sending messages, called datagrams, across the network. This routing of messages is fundamental for the internet and is the basis for internetworking. You can review the IP protocol suite [here](https://en.wikipedia.org/wiki/Internet_protocol_suite). The three key ones we will review are User Datagram Protocol (UDP) and Transmission Control Protocol (TCP) from the transport layer, and Hypertext Transfer Protocol (HTTP) from the application layer. 
+In this class we will focus on the Internet Protocol (IP) which is a principal protocol communication stack for sending messages, called datagrams, across the network. This routing of messages is fundamental for the internet and is the basis for internetworking. You can review the IP protocol suite [here](https://en.wikipedia.org/wiki/Internet_protocol_suite). The three key ones we will review are User Datagram Protocol (UDP) and Transmission Control Protocol (TCP) from the transport layer, and Hypertext Transfer Protocol (HTTP) from the application layer.
 
 User Datagram Protocol is a protocol defining the method of sending messages or datagrams across an IP network. Datagrams are just transfer units structured in header and payload sections that are sent across a packet-switched network. These datagrams provide connectionless communication by loading important header information like destintation/source and checksums in the header and the data in the payload. You can read more about this in the slides linked [above](http://www.cs.cornell.edu/courses/cs4410/2015fa/slides/08-networking.pdf). One important thing to note is that UDP does not have handshaking, the back-and-forth communication which is necessary for reliability in the network. As such, there is no guarantee of delivery, ordering, or duplicate protection. If we are to seek such reliability via handshaking this can be provided via TCP.
 
@@ -48,8 +48,8 @@ Hyptertext Transfor Protocol is the main application protocol for exchanging and
 
 We know that HTTP is a common protocol to pass around HTML amongst other forms of data i.e. JSON by providing stateless data exchange, between the client and the server. This data exchange is achieved via request-response communication. HTTP defines request methods that each uniquly indicate the desired action to be performed on the identified resource. This method specification is either in the form: HTTP/1.0, which define the GET, POST, and HEAD methods, or: HTTP/1.1 which define the OPTIONS, PUT, DELETE, TRACE, and CONNECT methods. Recently there was an additional HTTP method added: PATCH.
 
-| Request       | Description     | 
-| --------------|-----------------| 
+| Request       | Description     |
+| --------------|-----------------|
 | GET	        | requests a representation of the resource; data retrieval |
 | HEAD          | identical to GET w/e the response body  |
 | POST          | requests that server accepts an entity enclosed in the request |
@@ -61,9 +61,9 @@ We know that HTTP is a common protocol to pass around HTML amongst other forms o
 | PATCH         | request that applies some form of modification on the resource |
 
 
-It is important to note that only the PUT and DELETE requests are defiend to be idempotent. Idempotence means that the operation will produce the same result if it is executed once or multiple times. For methods : GET, HEAD, OPTIONS, and TRACE to be declared idempotent they must be prescribed as safe. POST requests naturally won't be always idempotent as sending multiple identitical POST requests could further alter the state of the resource which may or may not be desirable. 
+It is important to note that only the PUT and DELETE requests are defiend to be idempotent. Idempotence means that the operation will produce the same result if it is executed once or multiple times. For methods : GET, HEAD, OPTIONS, and TRACE to be declared idempotent they must be prescribed as safe. POST requests naturally won't be always idempotent as sending multiple identitical POST requests could further alter the state of the resource which may or may not be desirable.
 
-It is necessary to understand GET,POST, and PATCH as those will be leveraged heavily in your APIs throughout the class. 
+It is necessary to understand GET,POST, and PATCH as those will be leveraged heavily in your APIs throughout the class.
 
 The request format will be sent as:
 
@@ -72,7 +72,7 @@ The request format will be sent as:
 * Empty line
 * Message body (optional data or request entity)
 
-To complete the request-response communication you will obviously recieve a response from the server. The response contains a status code which allows the user-agent to handle the response primiarily based on the status code and secondarily on the other response header fields. Response header fields are responsible for telling the user-agent the format in which the message body or data sent will come in: text/json, text/html, etc. HTTP status codes are dividied into five groups: 
+To complete the request-response communication you will obviously recieve a response from the server. The response contains a status code which allows the user-agent to handle the response primiarily based on the status code and secondarily on the other response header fields. Response header fields are responsible for telling the user-agent the format in which the message body or data sent will come in: text/json, text/html, etc. HTTP status codes are dividied into five groups:
 
 1. Informational: 1XX
 2. Successful: 2XX
@@ -91,11 +91,11 @@ Now that you have knowledge of the formatting and structure of an HTTP request a
 
 1. Parsing the URL
 
-	Firstly, a URL is typed into the address bar of a web browser. URL is an alias to a unique IP address which you can read all about [above](http://www.cs.cornell.edu/courses/cs4410/2015fa/slides/08-networking.pdf). The matching IP address to the alias is a unique number sequence which is the server you are trying to collect resources from, this target server can be called the Host. 
+	Firstly, a URL is typed into the address bar of a web browser. URL is an alias to a unique IP address which you can read all about [above](http://www.cs.cornell.edu/courses/cs4410/2015fa/slides/08-networking.pdf). The matching IP address to the alias is a unique number sequence which is the server you are trying to collect resources from, this target server can be called the Host.
 
-	The browser next will check for the IP in its browser cache. The browser cahce lets you set aside a section of your computer’s hard disk to store representations that you’ve seen. This cache is used when users hit the “back” button or click a link to see a page they’ve just looked at. Also, if you use the same navigation images throughout your site, they’ll be served from browsers’ caches almost instantaneously. To learn more about caches read [this](https://www.mnot.net/cache_docs/). If the IP is not found in the browser cache it sends a request to DNS. the DNS or Domain Name System is a comprehensive directory network translating domain names into its unnique IP sequence. The browser then parses the URL to the find the Protocol Type, Host, Port, and request-URI path in the form: "[protocol]://[host]/[request-URI]". The Protocl Type would be HTTP in this case. The HOST would be the server which the browser will contact. The Request-URI or Universal Resource Identifier would be used by the server to identify the resource location. 
+	The browser next will check for the IP in its browser cache. The browser cahce lets you set aside a section of your computer’s hard disk to store representations that you’ve seen. This cache is used when users hit the “back” button or click a link to see a page they’ve just looked at. Also, if you use the same navigation images throughout your site, they’ll be served from browsers’ caches almost instantaneously. To learn more about caches read [this](https://www.mnot.net/cache_docs/). If the IP is not found in the browser cache it sends a request to DNS. the DNS or Domain Name System is a comprehensive directory network translating domain names into its unnique IP sequence. The browser then parses the URL to the find the Protocol Type, Host, Port, and request-URI path in the form: "[protocol]://[host]/[request-URI]". The Protocl Type would be HTTP in this case. The HOST would be the server which the browser will contact. The Request-URI or Universal Resource Identifier would be used by the server to identify the resource location.
 
-	The browser then forms a HTTP request given the URL. Lets take a simple example: typing in: www.google.com. This would be a  GET /URI HTTP/1.1 to the host www.google.com. 
+	The browser then forms a HTTP request given the URL. Lets take a simple example: typing in: www.google.com. This would be a  GET /URI HTTP/1.1 to the host www.google.com.
 
 2. Sending the request
 
@@ -103,7 +103,7 @@ Now that you have knowledge of the formatting and structure of an HTTP request a
 
 3. The server response
 
-	The Host or target server checks the request format, the headers and the request method type. If the request is static the server locates the html filename and sends that file back over the internet. If the request is dynamic, all necessary files are processed containing changeable sections depending on variable values given to the page on the server end. The dynamic data and the requested file will be combined into a long string of text (HTML, .txt, or XML) before its output is sent back over the internet. The response the server sends wil have the status code illustrating whether or not the server successfully processed the request. 
+	The Host or target server checks the request format, the headers and the request method type. If the request is static the server locates the html filename and sends that file back over the internet. If the request is dynamic, all necessary files are processed containing changeable sections depending on variable values given to the page on the server end. The dynamic data and the requested file will be combined into a long string of text (HTML, .txt, or XML) before its output is sent back over the internet. The response the server sends wil have the status code illustrating whether or not the server successfully processed the request.
 
 4. Browser rendering
 
@@ -115,4 +115,4 @@ Now that you have knowledge of the formatting and structure of an HTTP request a
 
 # Model-View-Controller
 
-# Flask App 
+# Flask App

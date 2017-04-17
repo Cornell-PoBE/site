@@ -78,14 +78,14 @@ by referring to the above example system.  We demonstrate how to use `SQL` to cr
 constraints and relationships that set ourselves up well for data storage according to
 the business-case needs of this todo-list application.  
 
-# Syntax for Creation and Insertion 
+# Syntax for Creation and Insertion
 
 Let's start with the todo-lists.  Todo-lists have *a lot* of information associated with them:
 users who own them, items that they own, and metadata information.  For now, we would like to
 focus on the metadata information associated with them, and will slowly introduce the "glue"
 that allows us to connect users and todo-list items to these todo-lists in the near future.
 
-What metadata do todo-lists have?  
+What information do `todo-lists` have?  
 
 * Some unique identifier for the todo-list
 * The name of the todo-list
@@ -159,3 +159,62 @@ as well error-handle any potential inserts that accidentally specify a previousl
 rather than letting the database assign the `id` itself.  
 
 # Foreign Keys - Linking Tuples Together
+
+Great!  Now we've set up our `todo-lists` relation.  Let's next tackle the `todo-list-items` relation.
+
+What information do `todo-list-items` have?
+
+* A unique identifier
+* A description
+* A `true / false` means of articulating whether this item is completed or not
+* When the todo-list-item was created
+* A means of referring to the owning `todo-list`
+
+Before we talk about any of the *informational* needs `todo-list-items`, let's first discuss how we'd
+manage to create a reference to the owning `todo-list` tuple of an arbitrary `todo-list-item` tuple.
+
+In this situation, each `todo-list-item` tuple belongs to exactly *one* `todo-list` tuple, meaning
+that we can safely have *one* field in our `todo-list-item` relation representing that `todo-list` tuple.
+We'd like a way to capture exactly what `todo-list` tuple we're referring to in a concise and clean way.
+We can use the `todo-list` tuple's **key** to refer to which `todo-list` tuple owns the `todo-list-item`
+tuple.  We can, therefore, define a **foreign key**, which contains the primary key of the `todo-list` tuple
+that owns the `todo-list-item` tuple.
+
+We can define the `todo-list-items` relation in the following way:
+
+{% highlight sql %}
+CREATE TABLE todo-list-items (
+  id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  description VARCHAR(255) NOT NULL,
+  completed BOOLEAN NOT NULL DEFAULT FALSE,
+  created_at DATETIME NOT NULL DEFAULT GETDATE(),
+  FOREIGN KEY (todo_list_id) REFERENCES todo-lists (id)
+);
+{% endhighlight %}
+
+# Data Relationships
+
+The ideas of foreign keys is very powerful, as it is the crux of linking together data in a `SQL`-system.
+Via foreign keys, we can establish *relationships* between tuples.  We've seen the situation articulated
+above, which involved a `todo-list-item` tuple *belonging to* a `todo-list` tuple.  This is a `one-to-many` relationship, where **one** `todo-list` tuple is matched up to [potentially] **many** `todo-list-item`
+tuples.  There are two other common relationships that exist in relational databases: `one-to-one` and  
+`many-to-many`.  Below we list all 3 and describe the relational patterns used to create these relationships:
+
+* `one-to-one`: A relationship where tuple **a** of relation *A* is associated with one and only
+one tuple **b** of relation *B*, and vice versa.  Therefore, relation *A* has a foreign key `B_ID` referring
+to *B* and relation *B* has a foreign key `A_ID` referring to *A*.  
+  * **Example**: [`country` and `capital city`](https://en.wikipedia.org/wiki/One-to-one_(data_model))
+* `one-to-many`: A relationship where tuple **a** of relation *A* is associated with one or more
+tuples of relation *B*, but tuple **b** of relation *B* is associated with one and only one tuple from
+relation *A*.  Therefore, *B* has a foreign key `A_ID` referring to *A*.  
+  * **Example**: `todo-list` and `todo-list-item`
+* `many-to-many`: A relationship where tuple **a** of relation *A* is associated with one or more tuples of
+relation *B*, and tuple **b** of relation *B* is associated with one or more tuples of relation *B*.  Since no side of
+this relationship paired with exactly one tuple of the other side, it does not make sense to have a single foreign
+key field present on either side of the relationship, as this does not
+express to fact that the both sides can be associated with *many* of the other side.  Therefore, we must
+define a third relation *C* called a **JOIN relation / table** or **relationship table**, which has two foreign
+keys: `A_ID` and `B_ID`.  For every tuple **c** of relation *C*, there is a relationship between a given
+**a'** of *A* and **b'** of *B*.  By having this third relation, we can cleanly express *A*'s relationship with
+*B*.  
+  * **Example**: `beers` and `bars` (a beer is sold at many bars and a bar sells many beers).

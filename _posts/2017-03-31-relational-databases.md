@@ -73,6 +73,13 @@ functionality.  Let's express that functionality in full here:
 * We want todo-lists to be **owned** by 1 or more users (I could potentially own
   one todo-list with my friends, our "group todo list")
 
+The following sections overview different aspects of `SQL` (leveraging `MySQL` paradigms)
+by referring to the above example system.  We demonstrate how to use `SQL` to craft
+constraints and relationships that set ourselves up well for data storage according to
+the business-case needs of this todo-list application.  
+
+# Syntax for Creation and Insertion 
+
 Let's start with the todo-lists.  Todo-lists have *a lot* of information associated with them:
 users who own them, items that they own, and metadata information.  For now, we would like to
 focus on the metadata information associated with them, and will slowly introduce the "glue"
@@ -80,9 +87,75 @@ that allows us to connect users and todo-list items to these todo-lists in the n
 
 What metadata do todo-lists have?  
 
+* Some unique identifier for the todo-list
 * The name of the todo-list
 * When the todo-list was created
-* Some unique identifier for the todo-list
 
-You might think, why do we need a unique identifier for this todo-list?  Isn't the name enough.  
+The syntax used to establish the above constraints would be:
+
+{% highlight sql %}
+CREATE TABLE todo-lists (
+  id INT NOT NULL AUTO_INCREMENT,
+  name VARCHAR(255) NOT NULL,
+  created_at DATETIME NOT NULL DEFAULT GETDATE()
+);
+{% endhighlight %}
+
+Let's unpack the above.
+
+As we can see, we've attempted to nail all three fields that are required of us in order to
+represent the `todo-list` relation.  We've defined an `AUTO_INCREMENT` `id` field, meaning
+that every new tuple in the `todo-list` relation is assigned an `id` field that is strictly
+greater than every other `todo-list` tuple to exist in the database previously (so it's
+guaranteed to be unique).  The `name` field is defined as a `VARCHAR` data-type with a maximum of
+255 characters allowed.  The `created_at` field is defined as a `DATETIME` data-type.  Its
+default value, if unspecified on creation, grabs the datetime at which the tuple is being created
+(a.k.a. the system's clock value on whatever system is running the `SQL` database).  In addition,
+we have slapped on some `NOT NULL` constraints to prevent poorly-formatted tuples with `NULL` values
+for important, prerequisite fields like `name`.  As we can see, given the above relation structure,
+we can only provide the name of our todo-list and the database does the rest in terms of data-storage,
+field assignment, and mild error-handling, all for free!  
+
+To add a single `todo-list` tuple to the database, we can write the following:
+
+{% highlight sql %}
+INSERT INTO todo-lists (name)
+VALUES ('My Awesome Todo-List!');
+{% endhighlight %}
+
+# Primary Keys
+
+You might think, why do we need a unique identifier for this todo-list?  Isn't the name enough?
 It is here that we will introduce our first major concept of good database design: **primary keys**.
+I'd like to cite Cornell's `CS 4320` course materials in order to define a primary key:
+
+A **primary key** is a set of 1 or more fields.  An invariant that *must* be maintained amongst
+the tuples in your database is:
+* No two distinct tuples can have same values in all key fields
+
+This allows one to uniquely identify tuples in your database, which is useful for **querying** and
+**relating** different relations, which we'll see in the next section.  Now, we mentioned that
+the name of the todo-list might be a good unique identifier for a todo-list, and it very well could
+be depending on our application's logic.  However, given the logistics of the app, uniquely identifying
+a todo-list via name would mean that only one grouping of people who maintains that todo-list will ever
+get the todo-list name "Grocery Shopping", and "Wedding Todos", etc.  We shouldn't restrict one
+subset of users from accurately expressing their todo-list needs via its name, just because some other
+arbitrary subset of people had that todo-list need first!  Therefore, we need a more global, better
+measure of uniqueness.  This could be a combination of fields that must guarantee unqiueness, or one
+numerical- or string-based field that is generated each time a new todo-list item is created.
+
+The above example of creating the `todo-lists` relation establishes an absolutely unique primary key
+field called `id`.  We can formally declare it as the primary key of the relation via the following
+syntax:
+
+{% highlight sql %}
+ALTER TABLE todo-lists
+ADD PRIMARY KEY(id);
+{% endhighlight %}
+
+Obviously our `id` field is already unique because it leverages `AUTO_INCREMENT`, however, the above
+code allows the database to formally categorize the `id` field as the **key** for `todo-list` tuples,
+as well error-handle any potential inserts that accidentally specify a previously used `id` field,
+rather than letting the database assign the `id` itself.  
+
+# Foreign Keys - Linking Tuples Together

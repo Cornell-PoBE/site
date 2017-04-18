@@ -68,10 +68,7 @@ Let's say I'm remaking the todo-list app that was assigned for `A1`, but with so
 functionality.  Let's express that functionality in full here:
 
 * We want **todo-lists**
-* We want **todo-list items** that belong to one todo-list
-* We want **users**
-* We want todo-lists to be **owned** by 1 or more users (I could potentially own
-  one todo-list with my friends, our "group todo list")
+* We want **todo-list items** that belong to one **todo-list**
 
 The following sections overview different aspects of `SQL` (leveraging `MySQL` paradigms)
 by referring to the above example system.  We demonstrate how to use `SQL` to craft
@@ -94,7 +91,7 @@ What information do `todo-lists` have?
 The syntax used to establish the above constraints would be:
 
 {% highlight sql %}
-CREATE TABLE todo-lists (
+CREATE TABLE todo_lists (
   id INT NOT NULL AUTO_INCREMENT,
   name VARCHAR(255) NOT NULL,
   created_at DATETIME NOT NULL DEFAULT GETDATE()
@@ -119,7 +116,7 @@ field assignment, and mild error-handling, all for free!
 To add a single `todo-list` tuple to the database, we can write the following:
 
 {% highlight sql %}
-INSERT INTO todo-lists (name)
+INSERT INTO todo_lists (name)
 VALUES ('My Awesome Todo-List!');
 {% endhighlight %}
 
@@ -149,7 +146,7 @@ field called `id`.  We can formally declare it as the primary key of the relatio
 syntax:
 
 {% highlight sql %}
-ALTER TABLE todo-lists
+ALTER TABLE todo_lists
 ADD PRIMARY KEY(id);
 {% endhighlight %}
 
@@ -183,7 +180,7 @@ that owns the `todo-list-item` tuple.
 We can define the `todo-list-items` relation in the following way:
 
 {% highlight sql %}
-CREATE TABLE todo-list-items (
+CREATE TABLE todo_list_items (
   id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
   description VARCHAR(255) NOT NULL,
   completed BOOLEAN NOT NULL DEFAULT FALSE,
@@ -196,25 +193,95 @@ CREATE TABLE todo-list-items (
 
 The ideas of foreign keys is very powerful, as it is the crux of linking together data in a `SQL`-system.
 Via foreign keys, we can establish *relationships* between tuples.  We've seen the situation articulated
-above, which involved a `todo-list-item` tuple *belonging to* a `todo-list` tuple.  This is a `one-to-many` relationship, where **one** `todo-list` tuple is matched up to [potentially] **many** `todo-list-item`
+above, which involved a `todo-list-item` tuple *belonging to* a `todo-list` tuple.  This is a `one-to-many`
+relationship, where **one** `todo-list` tuple is matched up to [potentially] **many** `todo-list-item`
 tuples.  There are two other common relationships that exist in relational databases: `one-to-one` and  
 `many-to-many`.  Below we list all 3 and describe the relational patterns used to create these relationships:
 
-* `one-to-one`: A relationship where tuple **a** of relation *A* is associated with one and only
-one tuple **b** of relation *B*, and vice versa.  Therefore, relation *A* has a foreign key `B_ID` referring
-to *B* and relation *B* has a foreign key `A_ID` referring to *A*.  
+* `one-to-one`: A relationship where tuple **a** of relation *A* is associated with one
+and only one tuple **b** of relation *B*, and vice versa.  Therefore, relation *A* has a
+foreign key `B_ID` referring to *B* and relation *B* has a foreign key `A_ID` referring to *A*.  
   * **Example**: [`country` and `capital city`](https://en.wikipedia.org/wiki/One-to-one_(data_model))
 * `one-to-many`: A relationship where tuple **a** of relation *A* is associated with one or more
 tuples of relation *B*, but tuple **b** of relation *B* is associated with one and only one tuple from
 relation *A*.  Therefore, *B* has a foreign key `A_ID` referring to *A*.  
   * **Example**: `todo-list` and `todo-list-item`
-* `many-to-many`: A relationship where tuple **a** of relation *A* is associated with one or more tuples of
-relation *B*, and tuple **b** of relation *B* is associated with one or more tuples of relation *B*.  Since no side of
-this relationship paired with exactly one tuple of the other side, it does not make sense to have a single foreign
-key field present on either side of the relationship, as this does not
-express to fact that the both sides can be associated with *many* of the other side.  Therefore, we must
-define a third relation *C* called a **JOIN relation / table** or **relationship table**, which has two foreign
-keys: `A_ID` and `B_ID`.  For every tuple **c** of relation *C*, there is a relationship between a given
-**a'** of *A* and **b'** of *B*.  By having this third relation, we can cleanly express *A*'s relationship with
-*B*.  
+* `many-to-many`: A relationship where tuple **a** of relation *A* is associated with
+one or more tuples of relation *B*, and tuple **b** of relation *B* is associated with
+one or more tuples of relation *B*.  Since no side of this relationship paired with
+exactly one tuple of the other side, it does not make sense to have a single foreign
+key field present on either side of the relationship, as this does not express to fact
+that the both sides can be associated with *many* of the other side.  Therefore,
+we must define a third relation *C* called a **JOIN relation / table** or **relationship
+table**, which has two foreign keys: `A_ID` and `B_ID`.  For every tuple **c** of
+relation *C*, there is a relationship between a given **a'** of *A* and **b'** of *B*.  
+By having this third relation, we can cleanly express *A*'s relationship with *B*.  
   * **Example**: `beers` and `bars` (a beer is sold at many bars and a bar sells many beers).
+
+As we can see, the above techniques are very powerful in terms of establishing relationships
+between data, as a lot of the models in an application's business logic are related to each
+in the above 3 ways.  
+
+# Querying and Synthesizing Data
+
+Now that we have some basic ideas behind how we'd model data and have articulated our full
+`todo-list` example database **schema** (our relation structure and whatnot), we can move
+onto the actual syntax and semantics behind grabbing our data once we've figured out how
+to model it.  
+
+This section is not meant to enumerate all the features of `SQL` querying, but rather expose
+the reader to *topics* related to `SQL` querying.  In the **Further Reading** section, we have
+listed some of our favorite learning resources regarding `SQL` querying.  
+
+The classic `SQL` query structure is the following:
+
+{% highlight sql %}
+SELECT [DISTINCT] target-list
+FROM relation-list
+WHERE conditions
+{% endhighlight %}
+
+Let's decompose the above:
+
+* `SELECT` allows one to choose which attributes we're extracting from the query.   
+* `DISTINCT` allows one to only return single tuples of a particular structure (a.k.a.
+if multiple tuples have the same set of fields being selected on, only one of each
+will be returned).
+* `target-list` refers to the list of attributes we're extracting (e.g. `username,
+email, phone_number`, or `*` for all returned attributes).
+* `FROM` allows one to choose which relations we're grabbing information from.
+* `relation-list` refers to the list of relations we're getting info from (e.g.
+`todo-lists, todo-list-items`).
+* `WHERE` allows one to specify boolean conditions on which data is returned.
+* `conditions` is a series of boolean conditions (e.g. `users.first_name = 'John'
+AND users.age > 25`)
+
+If we only care about information from one relation, `relation-list` only has one
+relation listed.  However, a common need in an application's logic is to find
+"matching pairs" from two relations (e.g. return an entire country's information
+and its capital's information as one big tuple).  In order to synthsize relations
+that are bound together via `foreign key` relationships, one needs to understand
+the concept of **SQL JOINs**.  **JOINs** quite literally "join" data together.  
+
+Below is an example of a `JOIN` query that lists tuples of `todo-list` information
+and `todo-list-item` information combined into "super" tuples.  This, of course,
+refers back to our `todo-list` example articulated above:
+
+{% highlight sql %}
+SELECT *
+FROM todo_lists tl, todo_list_items tli,
+WHERE tl.id = tli.todo_list_id;
+{% endhighlight %}
+
+**NOTE:** `tl` and `tli` serve as *aliases* for the relations so we don't have to
+write the entire relation name every time we refer to an attribute within
+the relation.  
+
+One can think of the above as performing the cross-product of `todo-list` tuples
+and `todo-list-item` tuples (a.k.a. every possible tuple pairing) and then only
+returning the resultants where `tl.id = tli.todo_list_id`.  
+
+This is a very basic `SQL JOIN` example.  More exist [here](https://www.w3schools.com/sql/sql_join.asp)
+and online  (see our **Further Reading** section).  
+
+# Referential Constraints, Indexing, and Other Bells and Whistles

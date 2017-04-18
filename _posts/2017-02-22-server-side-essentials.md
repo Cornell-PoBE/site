@@ -2,6 +2,8 @@
 layout: post
 ---
 
+# (1 Week)
+
 ## Client-Server Model
 
 # Request-Response

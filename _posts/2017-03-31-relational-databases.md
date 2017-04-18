@@ -2,7 +2,7 @@
 layout: post
 ---
 
-## Relational Databases
+# (2 Weeks)
 
 # A Short History
 
@@ -285,3 +285,34 @@ This is a very basic `SQL JOIN` example.  More exist [here](https://www.w3school
 and online  (see our **Further Reading** section).  
 
 # Referential Constraints, Indexing, and Other Bells and Whistles
+
+As we can see, `SQL` and relational databases are very powerful in terms of data
+storage, data modeling, and querying.  But what else do they give us?  As we saw
+previously when declaring tables, `SQL` provides us with constraint-based error-detection.  
+We can flag attributes as `NOT NULL`, given attributes `DEFAULT` values, etc.  We
+can use these constraints to maintain attribute-level invariants, but also
+application-wide invariants.  
+
+For example, it is desirable to enforce *referential constraints* involving the
+relationships present in your application.  What does this exactly mean?  
+Well, say the following happens: a `todo-list` (from our running example)
+gets deleted.  What happens to all its `todo-list-items`?  Now all those `todo-list-items`
+refer to a `todo-list` that doesn't exist.  What happens if we didn't have `AUTO_INCREMENT`
+attached to the `todo-list` relation's `id` field and another `todo-list` tuple is
+made with the old, deleted `todo-list`'s `id`?  Do all those old `todo-list-items` now
+belong to this new `todo-list` tuple?  As we can see, this situation gets pretty messy when
+these `todo-list-items` are left swinging in the wind.  
+
+`SQL` lets us specify actions, given an occurrence like above, where the relationship
+between data breaks:
+
+1. The default is `NO ACTION`
+2. `CASCADE`, a.k.a. delete tuples that refer to the deleted one (via foreign key)
+3. `SET NULL / SET DEFAULT`, a.k.a. set the foreign reference to `NULL` or some default value
+
+This very powerful, as we can pass this type of logic reliably off `SQL`.  Anything
+that involves less application-level logic for us, as backend developers, is good
+
+Outside of specifying constraints, `SQL` lets us **index** particular attributes in
+order to increase the velocity at which we get are returned results on executing
+particular queries.  TODO 

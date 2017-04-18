@@ -91,30 +91,54 @@ The response format will be recieved by the client as:
 
 Now that you have knowledge of the formatting and structure of an HTTP request and response, I will walk through the request-response lifecycle and handling which can be broken down into 5 steps. I will show an example of an every-day get request you would do when access a web-page on a browser.
 
-1. Parsing the URL
+#### 1. Parsing the URL
 
-	Firstly, a URL is typed into the address bar of a web browser. URL is an alias to a unique IP address which you can read all about [above](http://www.cs.cornell.edu/courses/cs4410/2015fa/slides/08-networking.pdf). The matching IP address to the alias is a unique number sequence which is the server you are trying to collect resources from, this target server can be called the Host.
+Firstly, a URL is typed into the address bar of a web browser. URL is an alias to a unique IP address which you can read all about [above](http://www.cs.cornell.edu/courses/cs4410/2015fa/slides/08-networking.pdf). The matching IP address to the alias is a unique number sequence which is the server you are trying to collect resources from, this target server can be called the Host.
 
-	The browser next will check for the IP in its browser cache. The browser cahce lets you set aside a section of your computer’s hard disk to store representations that you’ve seen. This cache is used when users hit the “back” button or click a link to see a page they’ve just looked at. Also, if you use the same navigation images throughout your site, they’ll be served from browsers’ caches almost instantaneously. To learn more about caches read [this](https://www.mnot.net/cache_docs/). If the IP is not found in the browser cache it sends a request to DNS. the DNS or Domain Name System is a comprehensive directory network translating domain names into its unnique IP sequence. The browser then parses the URL to the find the Protocol Type, Host, Port, and request-URI path in the form: "[protocol]://[host]/[request-URI]". The Protocl Type would be HTTP in this case. The HOST would be the server which the browser will contact. The Request-URI or Universal Resource Identifier would be used by the server to identify the resource location.
+The browser next will check for the IP in its browser cache. The browser cahce lets you set aside a section of your computer’s hard disk to store representations that you’ve seen. This cache is used when users hit the “back” button or click a link to see a page they’ve just looked at. Also, if you use the same navigation images throughout your site, they’ll be served from browsers’ caches almost instantaneously. To learn more about caches read [this](https://www.mnot.net/cache_docs/). If the IP is not found in the browser cache it sends a request to DNS. the DNS or Domain Name System is a comprehensive directory network translating domain names into its unnique IP sequence. The browser then parses the URL to the find the Protocol Type, Host, Port, and request-URI path in the form: "[protocol]://[host]/[request-URI]". The Protocl Type would be HTTP in this case. The HOST would be the server which the browser will contact. The Request-URI or Universal Resource Identifier would be used by the server to identify the resource location.
 
-	The browser then forms a HTTP request given the URL. Lets take a simple example: typing in: www.google.com. This would be a  GET /URI HTTP/1.1 to the host www.google.com.
+The browser then forms a HTTP request given the URL. Lets take a simple example: typing in: www.google.com. This would be a  GET /URI HTTP/1.1 to the host www.google.com.
 
-2. Sending the request
+#### 2. Sending the request
 
-	A soceket connection is now opened from the user to the IP address where an HTTP request is sent to the host and the user waits to get a response back. The web server would recieve the request at this stage.
+A soceket connection is now opened from the user to the IP address where an HTTP request is sent to the host and the user waits to get a response back. The web server would recieve the request at this stage.
 
-3. The server response
+#### 3. The server response
 
-	The Host or target server checks the request format, the headers and the request method type. If the request is static the server locates the html filename and sends that file back over the internet. If the request is dynamic, all necessary files are processed containing changeable sections depending on variable values given to the page on the server end. The dynamic data and the requested file will be combined into a long string of text (HTML, .txt, or XML) before its output is sent back over the internet. The response the server sends wil have the status code illustrating whether or not the server successfully processed the request.
+The Host or target server checks the request format, the headers and the request method type. If the request is static the server locates the html filename and sends that file back over the internet. If the request is dynamic, all necessary files are processed containing changeable sections depending on variable values given to the page on the server end. The dynamic data and the requested file will be combined into a long string of text (HTML, .txt, or XML) before its output is sent back over the internet. The response the server sends wil have the status code illustrating whether or not the server successfully processed the request.
 
-4. Browser rendering
+#### 4. Browser rendering
 
-	The browser now receieves the response with the HTML document that it will then parse into a Document Object Model or DOM. It does this parsing by translating HTML elements and attributes into nodes with the "Document Object" set as the root node of the tree. When external scripts, images, and style-sheets are parsed, new requests are made to the server, with applicable styles getting attached to the appropriate corresponding node in the DOM tree. Javacsript files are parsed and executed next with the DOM nodes updated (but this information is not necessary for this class). In parallel to the DOM tree being consturcted, the browser would construct a "render tree" that acts as the visual representation of the node elements which the browser will use to render the page.
+The browser now receieves the response with the HTML document that it will then parse into a Document Object Model or DOM. It does this parsing by translating HTML elements and attributes into nodes with the "Document Object" set as the root node of the tree. When external scripts, images, and style-sheets are parsed, new requests are made to the server, with applicable styles getting attached to the appropriate corresponding node in the DOM tree. Javacsript files are parsed and executed next with the DOM nodes updated (but this information is not necessary for this class). In parallel to the DOM tree being consturcted, the browser would construct a "render tree" that acts as the visual representation of the node elements which the browser will use to render the page.
 
-5. HTTP persistent connection
+#### 5. HTTP persistent connection
 
-	If the HTTP request includes "Connection: Keep-Alive" in the header field there is a specific series of steps that must be undergone after the browser renders the page. It will initiate a single TCP connection for sending and recieving multiple HTTP requests-responses, instead of opening a new connection every single request-respone pair.  With this header set in the initial browser request it informs the server to not drop the connection, so that when the client sends another request it uses the same connection until the client or server decides to drop the connection.
+If the HTTP request includes "Connection: Keep-Alive" in the header field there is a specific series of steps that must be undergone after the browser renders the page. It will initiate a single TCP connection for sending and recieving multiple HTTP requests-responses, instead of opening a new connection every single request-respone pair.  With this header set in the initial browser request it informs the server to not drop the connection, so that when the client sends another request it uses the same connection until the client or server decides to drop the connection.
 
 # Model-View-Controller
+Model-View-Controller (MVC) is a software architectural pattern for implementing user interfaces that divides an application into three interconnected parts in order to separate internal representations of information from the ways that information is presented to and accepted from the user. This design pattern decouples these major components to allow for efficient code reusability and parallel development. The three components are the following:
 
+Model:
+The Model component corresponds to all the data-related logic that the user works with. This can represent either the data that is being transferred between the View and Controller components or any other business logic-related data. For example, a Customer object will retrieve the customer information from the database, manipulate it and update it data back to the database or use it to render data.
+
+Controller:
+Controllers act as an interface between Model and View components to process all the business logic and incoming requests, manipulate data using the Model component and interact with the Views to render the final output. For example, the Customer controller will handle all the interactions and inputs from the Customer View and update the database using the Customer Model. The same controller will be used to view the Customer data.
+
+View:
+The View component is used for all the UI logic of the application. For example, the Customer view will include all the UI components such as text boxes, dropdowns, etc. that the user interacts with.
+
+I will go through an example flow below:
+![MVC Design](
+https://betterexplained.com/wp-content/uploads/rails/mvc-rails.png)
+
+* Browser makes a request
+* Web server receives the request
+* Routes finds out which controller to use: the default route pattern is “/controller/action/id"
+* The web server then uses the dispatcher to create a new controller, call the action and pass the parameters.
+* Controllers do the work of parsing user requests, data submissions, cookies, sessions, ... etc 
+* Model talks to the database, in this case MySQL, store and validate data, and perform the business logic
+* Views are what the user sees: HTML, CSS, XML, Javascript, JSON
+* Controller returns the response body (HTML, XML, etc.) & metadata (caching headers, redirects) to the server. The server combines the raw data into a proper HTTP response and sends it to the user.
+
+I will now elaborate on how we will be using the MVC pattern design within a Flask app. 
 # Flask App

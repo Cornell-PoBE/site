@@ -284,7 +284,7 @@ returning the resultants where `tl.id = tli.todo_list_id`.
 This is a very basic `SQL JOIN` example.  More exist [here](https://www.w3schools.com/sql/sql_join.asp)
 and online  (see our **Further Reading** section).  
 
-# Referential Constraints, Indexing, and Other Bells and Whistles
+# Referential Constraints
 
 As we can see, `SQL` and relational databases are very powerful in terms of data
 storage, data modeling, and querying.  But what else do they give us?  As we saw
@@ -311,8 +311,76 @@ between data breaks:
 3. `SET NULL / SET DEFAULT`, a.k.a. set the foreign reference to `NULL` or some default value
 
 This very powerful, as we can pass this type of logic reliably off `SQL`.  Anything
-that involves less application-level logic for us, as backend developers, is good
+that involves less application-level logic for us, as backend developers, is good.
+
+# Indexing
 
 Outside of specifying constraints, `SQL` lets us **index** particular attributes in
 order to increase the velocity at which we get are returned results on executing
-particular queries.  TODO 
+particular queries.  *Indexing* essentially means that we build an in-memory data-structure
+built around accessing data quickly on disk based data-specific fields.  If you
+are familiar with the concepts of binary-search trees and hashing, you'll be right at
+home here.  If you are not, it is advisable that you familiarize yourself with
+**fundamental data-structures** (specifically tree-based ones) and the ideology behind **hashing**
+before reading this section further.  
+
+We can apply *hash indexes* to fields that we use to query tuples through equality
+checks.  If we are only ever looking for `user` tuples based on a particular `age` (age 9, 10, etc.),
+it is advisable to index the `age` field with a hash index.  This means that the `SQL` system
+will build a reasonably complex but fast hash-table in memory to make look-ups of
+`user` tuples with particular `ages` fast.  Rather than scanning the entire disk and
+figuring out which tuples have an age equal a specific age or not, we can pinpoint areas on disk
+where `user` tuples of a particular age *definitely* exist.  This is very powerful,
+as it reduces disk `I/Os`.  We are looking at less spaces (called pages) on disk in total.
+
+We can apply *tree indexes* (specifically, *B+ tree indexes*) to fields that we
+use to query tuples through inequality checks.  If we are always querying `user` tuples
+based on `age` ranges, we'd like to use a tree instead, as we can scan the leaves in such
+a way that we can quickly find where a range starts and then scan until we hit when
+the range ends.  For the sake of this course, know that *B+ trees* are incredibly powerful
+for indexing fields featured in range queries.  For more technical details on their
+implementation in terms of structure, memory, and disk usage, take `CS 4320` or cite
+some of our **Further Readings**.  
+
+# ORM's
+
+As we can see, `SQL` is pretty awesome.  But how do we connect a popular database like
+`MySQL` to our backend?  The first way would be through the vanilla connector offered by
+the database itself (most large database engines featuring `SQL` systems have connectors
+for popular languages like `Python`).  In the case of `MySQL`, this is the `mysql`
+connector.  This provides us low-level, base `SQL` functionality in terms of querying
+data, creating tables, deleting tables, and managing the database connection.
+
+Many people are a fan of this vanilla approach and build up abstractions in code
+to deal with creating `models` in memory (straight up `Python` classes instantiated
+from the result of querying the database), querying, etc.  However, some people want a better
+way to relate their `Python` model classes to the tables in the database, in a more
+"hands-off" way.  This is where `ORM`'s come into place.  `ORM` stands for `Object Relational
+Model`.  It relates your language **objects** to the relations in the database.  A very popular
+one for `Flask-based Python systems` is [`SQLAlchemy`](http://flask-sqlalchemy.pocoo.org/2.1/quickstart/).
+Definitely click that link to get a sense for how the library works before
+reading on.  It might look familar, as we debuted this format of modeling
+data in our first series of notes involving the `Model-View-Controller` paradigm.
+
+You might be thinking, "why would ANYONE write plain SQL, these ORMs are great!",
+after seeing how nicely `Python` objects map to database tables.  We counter that
+sentiment with the following: if you study `SQL` enough and have a good enough
+understanding of the system and the procedures it undergoes to obtain the data you
+need, you can leverage the vanilla connectors to `SQL` systems in ways that
+overpower the capabilities of `ORM`'s, which forever restrict the velocity of your
+queries because of the assumptions they make regarding what information you want.  
+
+What do we mean by this?  If I can write a single, clean query to `JOIN` a bunch
+of information and return the synthesis of several tables, this will be significantly
+*less* taxing on my system than an `ORM`'s approach to the same info need, which
+might hit the database with several queries and synthesize the information in-memory.
+
+For your first project related to `SQL`, we will have you use an `ORM`, just for the
+sake of getting familiar with interacting with `SQL`, but we encourage you all
+to learn as much as you can about `SQL` systems so you can be as powerful as possible
+in your execution of data storage.
+
+# Further Readings
+
+
+TODO - Talk to Prof. White

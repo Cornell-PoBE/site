@@ -175,3 +175,143 @@ situations.  We will describe `OAuth 2.0` below, why it is used for certain
 web API use-cases, etc.
 
 # What is OAuth 2.0?
+I'm sure you've logged onto some sort of platform like `Grubhub`, `Pinterest`, `Tumblr`,
+etc. and found that, conveniently, the site offers `Google` or `Facebook` sign up flows.
+On clicking on the `Facebook Sign In` button, you're redirected to a page hosted by `Facebook`,
+you sign in, click a button accepting that whatever platform you're onboarding for
+will be allowed to access a limited scope of your account, and you're in.  If you've
+underwent said experience or similar before, you've experience `OAuth 2.0`.  
+
+`OAuth 2.0` involves 3 different stakeholders:
+
+1. The third-party "client" - in this case a service like `Pinterest`
+2. The API "resource server" - in this case `Facebook`
+3. The resource owner "user" - the individual who has a `Facebook` account is trying to sign up
+for `Pinterest`
+
+All 3 of these entities benefit from the `OAuth 2.0` process.  
+* The "client" gets to offer a mainstream sign-up flow that accelerates how quickly people can
+onboard to their application.  In addition, the client gets access to functionality
+offered by the service they have the "user" authenticate with (e.g. if `Pinterest`
+lets me login with `Facebook`, `Pinterest` could then recommend me `Facebook` friends I
+have who are on `Pinterest` as potential connections on their platform).  
+* The "resource server" popularizes itself and its various features by exposing a subset
+of them to the "client" once someone has agreed to give the "client" access to those
+procedures.  
+* The "user" benefits because he / she only needs one set of credentials for multiple platforms
+(just a `Facebook` account for platforms like `Pinterest` and `Tumblr`).  
+
+# Technical Details of OAuth 2.0
+
+Now that we have a better sense of what `OAuth 2.0` involves, let's dive into the
+technical details.
+
+Let's track the steps and the flow of `OAuth 2.0`:
+
+#### 1. Registration
+An application **A** like `Pinterest` registers itself, as an application,
+with some service-provider **B** like `Facebook`.  **A** gets a `CLIENT_ID` and
+a `CLIENT_SECRET` that it keeps under lock-and-key because this is used by **B** to
+identify what application is making requests.
+
+#### 2. Redirect URI
+In addition to receiving credentials from **B**, **A** also designates
+a `redirect_uri` to **B**.  This is the `URI` that **B** uses to
+redirect the authenticated user back to **A** once the individual signs in /
+approves permissions on the **B** site.
+
+#### 3. Code Generation
+**A** provides a button on the sign-up / sign-in screen that links the user to
+a **B** `URL` with the following generic format:
+
+{% highlight bash %}
+https://service-B.com/auth?response_type=code&
+  client_id=CLIENT_ID&redirect_uri=REDIRECT_URI&scope=friends,timeline&state=1234zyx
+{% endhighlight %}
+
+This generic `URL` has several components that are worth noting, which are common
+amongst most all `OAuth 2.0` flows:
+
+* `response_type` is `code` because `Pinterest` will be receiving `code` when `Facebook`
+redirects back to `Pinterest` (via the `redirect_uri`)
+* `client_id` specifies the `CLIENT_ID` of `Pinterest`
+* `redirect_uri` specifies where `Facebook` should redirect to on successful sign-in /
+authorization.  An error will be thrown if this `redirect_uri` differs from the one
+that `Pinterest` specified on registering with `Facebook`
+* `scope` specifies the resources of `Facebook` that `Pinterest` would like to have
+access to via users who have authenticated with `Facebook` for `Pinterest`
+* `state` is a random `url-safe` string [used for security purposes](http://www.twobotechnologies.com/blog/2014/02/importance-of-state-in-oauth2.html)
+
+On clicking the button that **A** provides, linking to **B**, a user is forwarded to
+**B** and signs in.  Signing in and approving the `scopes` requested by **A** results
+in **B** redirecting the user to a `URL` hosted by **A** that looks like the following:
+
+{% highlight bash %}
+https://client-A.com/cb?code=AUTH_CODE_HERE&state=1234zyx
+{% endhighlight %}
+
+We can break down this `URL` as follows:
+
+* `code` is the `code` that **B** generated on successful sign-in.  This `code` is **NOT**
+a `token`, but can be used by **A** to request a `token` for use when interacting with **B**'s
+API.  More on this very soon.
+* `state` is returned to **A** to ensure that the response is actually from service **B**.
+As stated before, this parameter is [used for security purposes](http://www.twobotechnologies.com/blog/2014/02/importance-of-state-in-oauth2.html).
+
+Now that **A** has a `code` from **B** representing a user's successful sign-up / approval of
+permissions, **A** can hit an endpoint provided by **B** to retrieve a `token` that will
+serve, much like in our `HTTP Session Authentication` flow, as a representation of a user
+logged into **B** through **A** on making requests to **B**.  The *token exchange* `URL` looks
+as follows:
+
+{% highlight bash %}
+POST https://service-B.com/token
+  grant_type=authorization_code&
+  code=AUTH_CODE_HERE&
+  redirect_uri=REDIRECT_URI&
+  client_id=CLIENT_ID&
+  client_secret=CLIENT_SECRET
+{% endhighlight %}
+
+This `URL` contains a lot of information we've seen before.  This `URL` is where the `CLIENT_SECRET`
+comes into play.  It is offered by **A** to **B** to prove that we're trying to authorize
+a user on behalf of **A** and not some other, malicious server.  This endpoint takes the
+`AUTH_CODE` and generates an `access_token` to be used in requests to **B** through
+the client **A**.  The response's `session` looks as follows:
+
+{% highlight javascript %}
+{
+  "access_token": "a-random-token-generated-by-B",
+  "expires_at": 1493145112,
+  "update_token": "another-random-token-generated-by-B"
+}
+{% endhighlight %}
+
+Now that we have this token that represents a user of service **B**, **A**
+can request that user's information to get an identifier for the user on service
+**B** (some `id` or equivalent), which **A** then stores in a `user` entity / row
+in its database, linking the user's account on **B** to the user's account on **A**.
+If this user re-logs into **A** via **B**'s `OAuth 2.0` flow, we can request
+a `token` again, retrieve the `id` of the user on **B**, and match that up to the
+`user` entity / row that already exists in **A**'s database.  
+
+**A**'s app / web application can store the `session` response to authenticate
+every request to **A** (which requires calling **B** and validating which
+user is making the request).  In addition, this `session_code` can be used to
+GET and POST to **B** via **A** to perform certain operations within the original
+scopes requested by **A**.
+
+# That's all cool and well, now what?
+
+The best way to improve your understanding of this topic is to explore
+APIs available through some of your favorite platforms.  Explore their `OAuth 2.0`
+flow and the endpoints they expose to you given certain requested scopes.  Many
+platforms provide you an extremely powerful amount of information and capability,
+which can greatly improve the quality and utility of your server-side applications.
+
+# Further Readings
+* [Session Authentication Cheat Sheet](https://www.owasp.org/index.php/Session_Management_Cheat_Sheet#Session_ID_Properties)
+* [Aaron Parecki's OAuth 2.0 Overview](https://aaronparecki.com/oauth-2-simplified/)
+* [Why the State Variable is Important](http://www.twobotechnologies.com/blog/2014/02/importance-of-state-in-oauth2.html)
+* [Pokéapi](https://pokeapi.co/)
+* [Soundcloud API](https://developers.soundcloud.com/docs#authentication)

@@ -43,6 +43,10 @@ We leverage DevOps to programatically develop and deploy our application. DevOps
 
 # Devops with [Heroku](https://www.heroku.com)
 Heroku is a cloud platform based on a managed container system, with integrated data services and a powerful ecosystem, for deploying and running modern apps. Its simplicity and abstraction of internal system architecture is what is attractive about this platform for MVP (Minimum Viable Product) / POC (Point of Concept) applications. 
+Heroku runs applications inside dynos — smart containers on a reliable, fully managed runtime environment. Developers deploy their code written in any laungage that they perfer to a build system which produces an app that's ready for execution. The system and language stacks are monitored, patched, and upgraded, so it's always ready and up-to-date. The runtime keeps apps running without any manual intervention. Heroku also prioritizes software delivery so developers can focus on creating and continuously delivering applications, without being distracted by servers or infrastructure. Developers deploy directly from popular tools like Git, GitHub or Continuous Integration (CI) systems. The intuitive web-based Heroku Dashboard makes it easy to manage your app and gain greater visibility into performance. 
+
+As such, Heroku's edge over other frameworks is the intuitive and easy-to-manage deployment service it provides alongside popular tools like Github and various CI systems. 
+
 
 # Devops with AWS Instructions
 Let's say we wish to deploy our Flask application leveraging Git source control. 
@@ -127,11 +131,27 @@ You now should be able to `vagrant ssh` into our VM and run the following to get
 python run.py
 ```
 
-#### Ansible
+#### Looking into [Docker](https://www.docker.com)
+Next step is to take a look at Docker. Docker is the world’s leading software container platform. Developers use Docker to eliminate “works on my machine” problems when collaborating on code with co-workers. Operators use Docker to run and manage apps side-by-side in isolated containers to get better compute density. Enterprises use Docker to build agile software delivery pipelines to ship new features faster, more securely and with confidence for both Linux and Windows Server apps. A [container](https://www.docker.com/what-container) image is a lightweight, stand-alone, executable package of a piece of software that includes everything needed to run it: code, runtime, system tools, system libraries, settings. Available for both Linux and Windows based apps, containerized software will always run the same, regardless of the environment. Containers isolate software from its surroundings, for example differences between development and staging environments and help reduce conflicts between teams running different software on the same infrastructure. 
 
-# Docker
+Docker is the most popular file format for Linux-based container development and deployments. It also provides a container-specific toolset that enables you to create and deploy container images to a cloud-based container hosting environment. This can work great for brand-new environments, but it can be a challenge to mix container tooling with the systems and tools you need to manage your traditional IT environments. And, if you’re deploying your containers locally, you still need to manage the underlying infrastructure and environment.
 
-# Development and Layer Seperation
+Ansible interacts well with Docker as it functions as a way to automate Docker in your environment. Ansible enables you to operationalize your Docker container build and deployment process in ways that you’re likely doing manually today, or not doing at all.
+When you automate your Docker tooling with Ansible, you gain three key things:
+
+* Flexilibity: Ansible Playbooks are portable. If you build a container with a pure Dockerfile, it means that the only way you can reproduce that application is in a Docker container. If you build a container with an Ansible Playbook, you can then reproduce your environment in Docker, in Vagrant, on a cloud instance of your choice, or on bare metal. Plus, you can build your containers up using Ansible Roles, so that even complex container descriptions are easily read, and different container roles can be reused across many environments.
+
+* Auditability: Ansible Playbooks are repeatable and auditable. Just because containers provide some isolation doesn't alleviate the IT department of the burden of knowing what their containers are based on, tracking any potential vulnerabilities within, and knowing with certainty that you can rebuild a container if needed. By using Ansible Playbooks to build containers, you gain the advantages of a simple, repeatable, defined state of your containers that you can easily track. Combine this with Ansible Tower and you can easily track who deployed what container, with what code, where and when.
+
+* Ubiquity: Ansible can manage full environments. With Ansible, you can manage not only the containers, but the environments around the containers. Docker instances still need to run on hosts, and those hosts need to be launched, configured, networked, and coordinated, whether they be local machines or full cloud infrastructures.
+
+Ansible can model containers and non-containers at the same time. This is especially important, as containerized applications are nearly always talking to components — storage, database, networking — that are not containerized, and frequently not even containerizable. And with Ansible Tower, you can deploy your host environments, your containers, and your services with the push of a button.
+
+
+# Wrapup: 
+As you can see there are a ton of tools and systems that enable you to have Continuous Integration, Continuous Delivery, Microservices, and IAAC. It is your choice of how deep you want to get into the actual customization of your deployment strategy and that choice allows for you to explore or narrow done your options of DevOp tools. 
+
+# Development and Layer Seperation (TODO)
 
 #### App-Layer
 

@@ -53,9 +53,32 @@ send your complete credentials (in this case, email and password) on every reque
 # Sessions are Cooler
 
 Instead of `HTTP Basic Authentication`, most services opt for `HTTP Session Authentication`
-or `HTTP Token Authentication` after a user has signed in, which is a lot more secure while operating
+after a user has signed in, which is a lot more secure while operating
 on the present day `www`, where several web-based security exploits exist.  We will
 be discussing `session`-based authentication and an implementation strategy for securing
 your APIs once a user has signed in.  
 
-# What the Heck is a Session? 
+# What the Heck is a Session?
+
+Before delving into implementation details, let's talk at a high level about what a session
+is and how the `HTTP Session Authentication` flow works.  To motivate this approach vs.
+`HTTP Basic Authentication`, we will discuss some of the advantages from a security perspective
+to using `HTTP Session Authentication`.  
+
+A `session` identifies a user's recent "session" interacting with the server.  Imagine that,
+by signing in, I unlock a door to enter a room to interact with the server, but I can only
+stay in the room for so long.  My stay in the room is my "session" with the server.  
+
+The `HTTP Session Authentication` flow is as follows:
+
+1. The client (iOS / Android app, browser) authenticates (signs in) with its credentials (e.g. username
+and password)
+2. The server validates the sign-in attempt and generates a `session_token` for the user that
+signed in.  This token has an expiration date (e.g. 30 minutes into the future, 2 weeks into the future,
+whatever the implementer of the authentication flow prefers).  This `session_token` and all metadata
+are stored and properly associated with the user row / document / entity in the server's database.
+3. The server sends this `session_token` back to the client as a result of the successful sign-in.
+4. The client stores this `session_token` as a cookie if it's a browser or on disk in a
+secure fashion if it's an mobile application of some sort.
+5. The client packages this `session_token` with every request to the server so the server
+can associate the request with the user the `session_token` belongs to.

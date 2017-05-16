@@ -58,7 +58,30 @@ value = store.get(key)
 store.put(key,value)
 store.delete(key)
 ```
+To put this simply, it is basically just a "big, distributed, persistent, fault-tolerant hash table". This database is heavily optimized for performance on those above, basic operations. As such, a pure, and quite simple, key-value model can be all you need, but that API can be quite constraining in some use cases (i.e. what about range queries??) Let's see other system's build upon this:
 #### Redis
+This key-value store allows you to have values of various types: strings, lists, hashmaps, etc. Redis, in comparison to Voldemort, has a richer API than get/put. For example:
+```bash
+redis> EXISTS mykey
+(integer) 0
+redis> APPEND mykey "Hello"
+(integer) 5
+redis> APPEND mykey "World"
+(integer) 11
+redis> GET mykey
+"Hello World"
+redis> SET mykey "This is a string"
+OK
+redis> GETRANGE mykey 0 3
+"THIS"
+redis> LPUSH mylist "world"
+(integer) 1
+redis> LPUSH mylist "hello"
+(integer) 2
+redis> LRANGE mylist 0 -1
+1) "hello"
+2) "world"
+```
 #### DynamoDB
 
 Secondary Indexes

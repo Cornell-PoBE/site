@@ -382,5 +382,7 @@ in your execution of data storage.
 
 # Further Readings
 
-
-TODO - Talk to Prof. White
+* [`SQL Joins Explained`](http://www.sql-join.com/)
+* [`MySQL CLI Cheat Sheet`](https://gist.github.com/hofmannsven/9164408)
+* [`Another MySQL Cheat Sheet`](http://www.mysqltutorial.org/mysql-cheat-sheet.aspx)
+* [`MySQL Query Examples for Beginners`](http://www.ntu.edu.sg/home/ehchua/programming/sql/mysql_beginner.html)

@@ -6,12 +6,11 @@ layout: post
 
 # Introduction
 
-This week we will talk briefly about the different possible tiers of a backend
-stack, different layers that might exist in a complex backend system, and various
-frameworks / languages you can use to write different layers of a backend stack
-in.  This week is heavily driven by outside resources, so this write-up will be
-shorter but will contain ample references to some of our favorite online resources
-to gain more information about the topics introduced.
+This week, we will talk about tier-separation in a backend stack and different
+languages that you might write backend in.  This week is heavily driven by
+outside resources, so this write-up will be shorter but will contain ample
+references to some of our favorite online resources to gain more information
+about the topics introduced.
 
 # What is a Tier?
 
@@ -245,3 +244,41 @@ Companies like `Amazon`, `Palantir`, `Fitbit`, `Uber`, `Airbnb`, `HubSpot`, and 
 use some of the frameworks listed above.  
 
 #### Ruby
+
+[`Ruby`](https://en.wikipedia.org/wiki/Ruby_(programming_language)), as a language,
+was made by Yukihiro "Matz" Matsumoto and designed to "make programmers happy."  In general,
+`Ruby` is an incredibly flexible language, designed to make it incredibly easy to
+perform certain tasks.  In addition, there's usually more than one way to perform certain
+tasks in `Ruby`, so the language leaves it up to the programmer to decide how they'd like
+to write their code.  [`This post`](https://maori.geek.nz/what-is-ruby-it-is-fun-and-makes-you-happy-337b6f10fa40)
+enumerates several more reasons why `Ruby` is awesome.
+
+The premier framework written for `Ruby` is [`Ruby on Rails`](http://rubyonrails.org/),
+and this behemoth of a framework has been around forever, meaning there's **a ton** of
+support on the Internet, in the form of `StackOverflow` posts, guides, blogs, you name it.
+This framework is blazing fast to use and can allow backend developers to go from
+0 endpoints to an entire product in no time at all.
+
+But there's a catch, or so we've found.  This velocity of development is met with poor runtime
+performance, hidden bugs due to `Ruby`'s dynamically-typed, interpreted nature,
+and a lot of ["rails magic"](https://medium.com/ruby-on-rails/demystifying-the-magic-of-rails-416d2195f098)
+that can lead to issues down the line.  That being said, if you have a solid hold of
+the `Ruby` language and can optimize your `Rails` app to be performant in a modern setting,
+this framework will support you throughout that process.  However, many modern companies that
+started on `Rails` end up converting their entire codebase down the line.  Said companies include `Square`,
+`Airbnb`, `Twitter`, [`Parse`](http://blog.parse.com/learn/how-we-moved-our-api-from-ruby-to-go-and-saved-our-sanity/),
+
+However, `Rails` is awesome for prototyping and can be used in production, regardless of its limits
+at scale.  Companies like `Amazon`, `Github`, `Bloomberg`, etc. uses `Rails` to power parts of their site via
+a microservices approach.  
+
+#### Others
+
+The above languages are ones we have extensive server-side development experience with.  
+Others we did not include, and corresponding frameworks they can be used with, are listed below:
+
+* `Go` with [`Iris`](http://iris-go.com/)
+* `PHP` with [`Laravel`](https://laravel.com/) or [`Slim`](https://www.slimframework.com/)
+* `Scala` with [`Akka`](http://akka.io/) or [`Play`](https://www.playframework.com/)
+* `OCaml` with [`Eliom`](http://ocsigen.org/eliom/)
+* `C++` with [`CppCMS`](http://cppcms.com/wikipp/en/page/main), [`TreeFrog`](http://www.treefrogframework.org/), or [`Silicon`](http://siliconframework.org/)

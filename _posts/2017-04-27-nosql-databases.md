@@ -49,7 +49,15 @@ We will not take a deep dive with the topics below:
 
 ## Data Storage Solutions
 ### Key Value Stores
+Sometimes our data doesn't have a complex struecture and a very simple data model will do just fine (i.e.) pure key-value model.
+Data in such stores consist of <key,value> pairs where the key is some identifier, value can be anything, and the data model itself is completely schemaless. If we look above, this addresses the issues of not worrying about an over-abundance of NULLs and adding fields "willy nilly." The values themselves can have some form of internal structure, but datastore doesn't really "know about it" and you can't query on it. 
 #### Project Voldemort
+This database was originally developed at Linkedin and is now open source the API is simply the following:
+```python
+value = store.get(key)
+store.put(key,value)
+store.delete(key)
+```
 #### Redis
 #### DynamoDB
 
@@ -75,6 +83,8 @@ Data Versioning and Quorums
 ### MongoDB
 
 Data model
+
+Serialization (Avro / Parquet / Protobuff)
 
 Querying
 

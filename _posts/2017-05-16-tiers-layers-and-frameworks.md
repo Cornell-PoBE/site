@@ -95,7 +95,7 @@ answering API calls, and housing the database.  If that single server starts tak
 on too much load, I'm going to need to add computing resources to that server (more
 RAM, more storage space, etc.).  In this day and age, there is a limit on how many
 resources we can allocate to a single machine, and the expense of "vertically" scaling
-up this single machine (adding stacks and stacks of resources to it, hence, verically
+up this single machine (adding stacks and stacks of resources to it, hence, vertically
 scaling it) can get expensive quickly.  Therefore, we might think to "horizontally" scale,
 a.k.a. have multiple servers run and manage app traffic.  But all the software is coupled and
 reliant on each other within that single server.  A rewrite is required to isolate the

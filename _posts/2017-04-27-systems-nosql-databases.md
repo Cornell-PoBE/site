@@ -81,8 +81,9 @@ redis> LRANGE mylist 0 -1
 2) "world"
 ```
 Redis is an open source, in-memory data structure store, used as a database, cache and message broker. It supports data structures such as strings, hashes, lists, sets, sorted sets with range queries, bitmaps, hyperlog and geospatial indexes with radius queries. Redis has built-in replication, Lua scripting, LRU eviction, transactions and different levels of on-disk persistence, and provides high availability via Redis Sentinel and automatic partitioning with Redis Cluster.
-### DynamoDB
-#### Introduction
+#### DynamoDB
+**Introduction**
+
 Amazon runs a world-wide e-commerce platform that serves tens
 of millions customers at peak times using tens of thousands of
 servers located in many data centers around the world. There are
@@ -152,11 +153,12 @@ The DynamoDB API clearly shows the advancement from Voldemort and Redis:
 * Filter Query (based on a range on the sort key [must specify value of partition key first])
 * Table Scans
 
-#### Secondary Indexes
+**Secondary Indexes**
+
 A local secondary index allows you to specify an alternate sort key where the partition key stays the same.
 A global secondary indexes allow different partition key too. However, you are allowed only up to 5 indexes for each kind of table. All indexes must be created up front at table creation time. As such, you need to think about your queries up front at table creation, not as a final tuning step. As such, it is a common feature in NoSQL design to optimize your table design based on your queries. Your queries might even expect you to fully de-normalize your data (pre-join).
 
-#### Extended analysis of DynamoDB
+#### Extended analysis of DynamoDB and Common Distributed Principles
 The problems that DynamoDB faces and its respective solutions are represented in the table below. We encourage you to spend your time reading the following [paper](http://www.cs.utexas.edu/users/lorenzo/corsi/cs380d/papers/dynamo.pdf) to investigate these solutions on your own time. Classes like CS 4320 and [CS 5414](http://www.cs.cornell.edu/courses/cs5414/2016fa/) investigate such topics.
 
 |          Problem         	        |       Technique     | Advantage 	|
@@ -170,37 +172,50 @@ The problems that DynamoDB faces and its respective solutions are represented in
 
 The following topics utilize different principles in Distributed Systems and are leveraged in various NoSQL databases.
 
-#### Consistent Hashing
+**Consistent Hashing**
+
 Dynamo’s partitioning scheme relies on consistent hashing to distribute the load across multiple storage hosts. In consistent hashing, the output range of a hash function is treated as a fixed circular space or “ring” (i.e. the largest hash value wraps around to the smallest hash value). Each node in the system is assigned a random value within this space which represents its “position” on the ring. Each data item identified by a key is assigned to a node by hashing the data item’s key to yield its position on the ring, and then walking the ring clockwise to find the first node with a position larger than the item’s position.
 
 Thus, each node becomes responsible for the region in the ring between it and its predecessor node on the ring. The principle advantage of consistent hashing is that departure or arrival of a node only affects its immediate neighbors
 ![Consistent-Hashing](https://i.gyazo.com/62803f773387b4c6e425e099bd845f82.png)
 
-#### Versioning
+**Versioning**
+
 Mimicking the structure of how you would expect Git to handle merge conflicts. DynamoDB uses something called vector clocks in order to capture causality between different versions of the same object. A vector clock is effectively a list of (node, counter) pairs. One vector clock is associated with every version of every object. One can determine whether two versions of an object are on parallel branches or have a causal ordering, by examine their vector clocks. If the counters on the first object’s clock are less-than-or-equal to all of the nodes in the second clock, then the first is an ancestor of the second and can be forgotten. Otherwise, the two changes are considered to be in conflict and require reconciliation. An example is shown below:
 
 ![Vector-Clocks](https://i.gyazo.com/c0832308af8a2a3167d6b6ccf705c59d.png)
 
-#### Quorums
+**Quorums**
+
 A quorum is the minimum number of votes that a distributed transaction has to obtain in order to be allowed to perform an operation in a distributed system. A quorum-based technique is implemented to enforce consistent operation in a distributed system. However, in the case of DynamoDB, if it uses a traditional quorum approach it would be unavailable during server failures and network partitions, and
 would have reduced durability even under the simplest of failure conditions. To remedy this, as DynamoDB prefers durability, it does not enforce strict quorum membership and instead uses a “sloppy quorum”; all read and write operations are performed on the first N healthy nodes from the preference list, which may not always be the first N nodes encountered while walking the consistent hashing ring. For example, let us look at the consistent-hashing ring above and assume a "sloppy quorum" of size N=3. In this example, if node A is temporarily down or unreachable during a write operation then a replica that would normally have lived on A will now be sent to node D. This is done to maintain the desired availability and durability guarantees. The replica sent to D will have a hint in its metadata that suggests which node was the intended recipient of the replica (in this case A). Nodes that receive hinted replicas will keep them in a
 separate local database that is scanned periodically. Upon detecting that A has recovered, D will attempt to deliver the replica to A. Once the transfer succeeds, D may delete the object from its local store without decreasing the total number of replicas in the system.
 This form of "hinted handoff" allows DynamoDB to ensure that the read and write operations are not failed due to temporary node or network
 failures.
 
-#### Replication
+**Replication**
+
 To achieve high availability and durability, DynamoDB replicates its data on multiple hosts. Each data item is replicated on N hosts, where N represents a parameter configured “per-instance”. Each key, k, is assigned to a coordinator node.  The coordinator is in charge of the replication of the data items that fall within its range. In addition to locally storing each key within its range, the coordinator replicates these keys at the N-1 clockwise successor nodes in the ring. This results in a system where each node is responsible for the region of the ring between it and its Nth predecessor. In the above ring figure, node B replicates the key k at nodes C and D in addition to storing it locally. Node D will store the keys that fall in the ranges `(A, B]`, `(B, C]`, and `(C, D]`.
 
-#### Gossip
+**Gossip**
+
 A gossip protocol is a style of computer-to-computer communication protocol inspired by the form of gossip seen in social networks. Modern distributed systems often use gossip protocols to solve problems that might be difficult to solve in other ways, either because the underlying network has an inconvenient structure, is extremely large, or because gossip solutions are the most efficient ones available. The term epidemic protocol is sometimes used as a synonym for a gossip protocol, because gossip spreads information in a manner similar to the spread of a virus in a biological community. In Amazon’s environment node outages (due to failures and maintenance tasks) are often transient but may last for extended intervals. A node outage rarely signifies a permanent departure and therefore should not result in rebalancing of the partition assignment or repair of the unreachable replicas. Similarly, manual error could result in the unintentional startup of new nodes. For these reasons, it was deemed appropriate to use an explicit mechanism to initiate the addition and removal of nodes from the consistent hashing ring. An administrator uses a command line tool or a browser to connect to a node and issue a membership change to join a node to a ring or remove a node from a ring. The node that serves the request writes the membership change and its time of issue to persistent store. The membership changes form a history because nodes can be removed and added back multiple times. A gossip-based protocol propagates membership changes and maintains an eventually consistent view of membership. Each node contacts a peer chosen at random every second and the two nodes efficiently reconcile their persisted membership change histories.
+
+#### Google App Engine Datastore
+Google App Engine Datastore is a NoSQL document database built for automatic scaling, high performance, and ease of application development that also extends the key-value store. GAE Datastore contains entities ("tuples"), which have some properties ("attributes") and belong to kinds ("tables") where you can perform programmatic queries (basically select-project) but have to create indexes on appropriate properties to perform queries on non-key values.
+
+* GAE Datastore is designed to automatically scale to very large data sets, allowing applications to maintain high performance as they receive more traffic
+
+* GAE Datastore writes scale by automatically distributing data as necessary.
+
+* Cloud Datastore reads scale because the only queries supported are those whose performance scales with the size of the result set (as opposed to the data set). This means that a query whose result set contains 100 entities performs the same whether it searches over a hundred entities or a million. This property is the key reason some types of queries are not supported.
+
+### Column Family data model
 
 CAP Theorem
 
 ACID
 
-#### Google App Engine Datastore
-
-### Column Family data model
 #### Apache Cassandra
 #### Apache HBase
 
@@ -219,4 +234,3 @@ Querying
 ### Sharding
 ### Transactions
 ### Bloom Filters
-### Failure Detection

@@ -103,6 +103,7 @@ Firstly, a URL is typed into the address bar of a web browser. URL is an alias t
 The browser next will check for the IP in its browser cache. The browser cache lets you set aside a section of your computer’s hard disk to store representations that you’ve seen. This cache is used when users hit the “back” button or click a link to see a page they’ve just looked at. Also, if you use the same navigation images throughout your site, they’ll be served from browsers’ caches almost instantaneously. To learn more about caches read [this](https://www.mnot.net/cache_docs/). If the IP is not found in the browser cache it sends a request to DNS. the DNS or Domain Name System is a comprehensive directory network translating domain names into its unique IP sequence. The browser then parses the URL to the find the Protocol Type, Host, Port, and request-URI path in the form: "[protocol]://[host]/[request-URI]". The Protocol Type would be HTTP in this case. The HOST would be the server which the browser will contact. The Request-URI or Universal Resource Identifier would be used by the server to identify the resource location.
 
 The browser then forms a HTTP request given the URL. Lets take a simple example: typing in: www.google.com. This would be a  GET /URI HTTP/1.1 to the host www.google.com.
+The browser then forms a HTTP request given the URL. Lets take a simple example: typing in: www.facebook.com/profile. This would be a GET /profile HTTP/1.1 to the host www.facebook.com
 
 #### 2. Sending the request
 

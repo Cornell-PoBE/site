@@ -8,7 +8,7 @@ title: "Systems and NoSQL Databases"
 # Introduction
 In this section of the course we will be doing a survey into data storage beyond the relational model and RDBMS.
 
-* "NoSQL" systems (Redis, MongoDB, Couchbase, MongoDB, ...)
+* "NoSQL" systems (DynamoDB, Cassandra, HBase, MongoDB, Couchbase, ...)
 * New processing models (MapReduce, Spark...)
 
 Starting in mid-2000s, custom data storage solutions developed in industry that include and are not limited to: Amazon DynamoDB, Google Bigtable, Facebook Cassandra, etc. Now these solutions are available for general use in various ports/variants.
@@ -48,7 +48,7 @@ We will now take a deep dive into the topics below:
 ### Key Value Stores
 Sometimes our data doesn't have a complex structure and a very simple data model will do just fine (i.e.) pure key-value model.
 Data in such stores consist of <key,value> pairs where the key is some identifier, value can be anything, and the data model itself is completely schema-less. If we look above, this addresses the issues of not worrying about an over-abundance of NULLs and adding fields "willy nilly." The values themselves can have some form of internal structure, but datastore doesn't really "know about it" and you can't query on it.
-### Project Voldemort
+#### Project Voldemort
 This database was originally developed at LinkedIn and is now open source.
 The API is simply the following:
 ```python
@@ -57,7 +57,7 @@ store.put(key,value)
 store.delete(key)
 ```
 To put this simply, it is basically just a "big, distributed, persistent, fault-tolerant hash table". This database is heavily optimized for performance on those above, basic operations. As such, a pure, and quite simple, key-value model can be all you need, but that API can be quite constraining in some use cases (i.e. what about range queries??) Let's see other system's build upon this:
-### Redis
+#### Redis
 This key-value store allows you to have values of various types: strings, lists, hashmaps, etc. Redis, in comparison to Voldemort, has a richer API than get/put. For example:
 ```bash
 redis> EXISTS mykey
@@ -158,8 +158,8 @@ The DynamoDB API clearly shows the advancement from Voldemort and Redis:
 A local secondary index allows you to specify an alternate sort key where the partition key stays the same.
 A global secondary indexes allow different partition key too. However, you are allowed only up to 5 indexes for each kind of table. All indexes must be created up front at table creation time. As such, you need to think about your queries up front at table creation, not as a final tuning step. As such, it is a common feature in NoSQL design to optimize your table design based on your queries. Your queries might even expect you to fully de-normalize your data (pre-join).
 
-#### Extended analysis of DynamoDB and Common Distributed Principles
-The problems that DynamoDB faces and its respective solutions are represented in the table below. We encourage you to spend your time reading the following [paper](http://www.cs.utexas.edu/users/lorenzo/corsi/cs380d/papers/dynamo.pdf) to investigate these solutions on your own time. Classes like CS 4320 and [CS 5414](http://www.cs.cornell.edu/courses/cs5414/2016fa/) investigate such topics.
+#### Extended analysis of DynamoDB and common distributed principles
+The problems that DynamoDB faces and its respective solutions are represented in the table below. We encourage you to spend your time reading the following [paper](http://www.cs.utexas.edu/users/lorenzo/corsi/cs380d/papers/dynamo.pdf) to investigate these solutions on your own time. Classes like CS 4320 and [CS 5414](http://www.cs.cornell.edu/courses/cs5414/2016fa/) investigate such topics and we highly encourage you to take these classes to further immerse yourself in the world of Distributed Systems.
 
 |          Problem         	        |       Technique     | Advantage 	|
 |:---------------------------------:|:------------------:	|--------------	|
@@ -181,13 +181,13 @@ Thus, each node becomes responsible for the region in the ring between it and it
 
 **Versioning**
 
-Mimicking the structure of how you would expect Git to handle merge conflicts. DynamoDB uses something called vector clocks in order to capture causality between different versions of the same object. A vector clock is effectively a list of (node, counter) pairs. One vector clock is associated with every version of every object. One can determine whether two versions of an object are on parallel branches or have a causal ordering, by examine their vector clocks. If the counters on the first object’s clock are less-than-or-equal to all of the nodes in the second clock, then the first is an ancestor of the second and can be forgotten. Otherwise, the two changes are considered to be in conflict and require reconciliation. An example is shown below:
+Mimicking the structure of how you would expect Git to handle merge conflicts. DynamoDB uses something called vector clocks in order to capture causality between different versions of the same object. A vector clock is effectively a list of (node, counter) pairs. One vector clock is associated with every version of every object. One can determine whether two versions of an object are on parallel branches or have a causal ordering, by examine their vector clocks. If the counters on the first object’s clock are less-than-or-equal to all of the nodes in the second clock, then the first is an ancestor of the second and can be forgotten. Otherwise, the two changes are considered to be in conflict and require reconciliation. An example is shown below where we have three different processes: `Sx`, `Sy`, and `Sz`, each writing values which need to be reconciled.
 
 ![Vector-Clocks](https://i.gyazo.com/c0832308af8a2a3167d6b6ccf705c59d.png)
 
 **Quorums**
 
-A quorum is the minimum number of votes that a distributed transaction has to obtain in order to be allowed to perform an operation in a distributed system. A quorum-based technique is implemented to enforce consistent operation in a distributed system. However, in the case of DynamoDB, if it uses a traditional quorum approach it would be unavailable during server failures and network partitions, and
+A quorum is the minimum number of votes that a distributed transaction has to obtain in order to be allowed to perform an operation in a distributed system i.e. a set of 6 machines need at least 3 machines to confirm that they are writing before the write is approved and executed by the system. A quorum-based technique is implemented to enforce consistent operation in a distributed system. However, in the case of DynamoDB, if it uses a traditional quorum approach it would be unavailable during server failures and network partitions, and
 would have reduced durability even under the simplest of failure conditions. To remedy this, as DynamoDB prefers durability, it does not enforce strict quorum membership and instead uses a “sloppy quorum”; all read and write operations are performed on the first N healthy nodes from the preference list, which may not always be the first N nodes encountered while walking the consistent hashing ring. For example, let us look at the consistent-hashing ring above and assume a "sloppy quorum" of size N=3. In this example, if node A is temporarily down or unreachable during a write operation then a replica that would normally have lived on A will now be sent to node D. This is done to maintain the desired availability and durability guarantees. The replica sent to D will have a hint in its metadata that suggests which node was the intended recipient of the replica (in this case A). Nodes that receive hinted replicas will keep them in a
 separate local database that is scanned periodically. Upon detecting that A has recovered, D will attempt to deliver the replica to A. Once the transfer succeeds, D may delete the object from its local store without decreasing the total number of replicas in the system.
 This form of "hinted handoff" allows DynamoDB to ensure that the read and write operations are not failed due to temporary node or network
@@ -224,13 +224,77 @@ ACID
 
 Data model
 
-Serialization (Avro / Parquet / Protobuff)
+Serialization (Avro / Parquet / Protobuf)
 
 Querying
 
 ## Map Reduce
-
 ## Distributed Systems
+Distributed computing is a field of computer science that studies distributed systems. A distributed system is a model in which components located on networked computers communicate and coordinate their actions by passing messages. The components interact with each other in order to achieve a common goal. Three significant characteristics of distributed systems are: concurrency of components, lack of a global clock, and independent failure of components. There are many alternatives for the message passing mechanism, including pure HTTP like we have seen, RPC-like connectors, and message queues which could be in the form of a Pub-Sub system that we will elaborate on below.
+### Message Passing
+Message-oriented middleware (MOM) is software or hardware infrastructure supporting sending and receiving messages between distributed systems. MOM allows application modules to be distributed over heterogeneous platforms and reduces the complexity of developing applications that span multiple operating systems and network protocols. The middleware creates a distributed communications layer that insulates the application developer from the details of the various operating systems and network interfaces. APIs that extend across diverse platforms and networks are typically provided by a MOM. MOM provides software elements that reside in all communicating components of a client/server architecture and typically support asynchronous calls between the client and server applications. MOM reduces the involvement of application developers with the complexity of the master-slave nature of the client/server mechanism.
+#### Types of middleware
+* Remote Procedure Call or RPC-based middleware
+* Object Request Broker or ORB-based middleware
+* Message Oriented Middleware or MOM-based middleware
+All these models make it possible for one software component to affect the behavior of another component over a network. They are different in that RPC and ORB-based middleware create systems of tightly coupled components, whereas MOM-based systems allow for a looser coupling of components. In essence, RPC and ORB-based systems are synchronous, where when one procedure calls another, it must wait for the called procedure to return before it can do anything else.
+
+Central reasons for using a message-based communications protocol include its ability to store/buffer, route, or transform messages while conveying them from senders to receivers. These message passing systems engage in certain conceptual models that deal with concurrent computation. An example of such a model is the Actor Model.
+
+#### Actor Pattern
+The actor model is a conceptual model to deal with concurrent computation. It defines some general rules for how the system’s components should behave and interact with each other. The most famous language that uses this model is probably `Erlang`, but it is also leveraged by `Scala` in the async library called `Akka`.
+
+An actor is the primitive unit of computation. It’s the thing that receives a message and does some kind of computation based on it.
+
+The idea is very similar to what we have in object-oriented languages: An object receives a message (a method call) and does something depending on which message it receives (which method we are calling).
+The main difference is that actors are completely isolated from each other and they will never share memory. It’s also worth noting that an actor can maintain a private state that can never be changed directly by another actor. In the actor model everything is an actor and they need to have addresses so one actor can send a message to another. Although multiple actors can run at the same time, an actor will process a given message sequentially. This means that if you send 3 messages to the same actor, it will just execute one at a time. To have these 3 messages being executed concurrently, you need to create 3 actors and send one message to each.
+
+Messages are sent asynchronously to an actor, that needs to store them somewhere while it’s processing another message. The mailbox is the place where these messages are stored.
+![Actor-Model](http://www.brianstorti.com/assets/images/actors.png)
+
+The two main advantages of such a model are for fault tolerance and distribution.
+
+**Fault Tolerance**
+In such a model the actors are processes are completely isolated, meaning its state is not going to influence any other process. As such, faults can be managed by having a supervisor, that is basically another process, that will be notified when the supervised process crashes and then can do something about it.
+
+This makes it possible to create systems that “self heal”, meaning that if an actor gets to an exceptional state and crashes, by whatever reason, a supervisor can do something about it to try to put it in a consistent state again (and there are multiple strategies to do that, the most common being just to restart the actor with its initial state).
+
+**Distribution**
+Naturally these types of models lend themselves towards distribution where it doesn’t matter if the actor that I’m sending a message to is running locally or in another node. For example if an actor is just a process with a mailbox and an internal state, and it just respond to messages, who cares in which machine it’s actually running? As long as we can make the message get there we are fine. This allows us to create systems that leverage multiple computers and helps us to recover if one of them fail.
+
+#### Back to Middleware
+Another advantage of messaging provider mediated messaging between clients is that by adding an administrative interface, you can monitor and tune performance. Client applications are thus effectively relieved of every problem except that of sending, receiving, and processing messages. It is up to the code that implements the MOM system and up to the administrator to resolve issues like interoperability, reliability, security, scalability, and performance.
+I will now go into some advantages and disadvantages in using a MOM rather than the standard HTTP or RPC systems we commonly use.
+#### Advantages for MOM
+* Asynchronicity: a client makes an API call to send a message to a destination managed by the provider. The call invokes provider services to route and deliver the message. Once it has sent the message, the client can continue to do other work, confident that the provider retains the message until a receiving client retrieves it. The message-based model, coupled with the mediation of the provider, makes it possible to create a system of loosely coupled components.
+* Routing: many message-oriented middleware implementations depend on a message queue system. Some implementations permit routing logic to be provided by the messaging layer itself, while others depend on client applications to provide routing information or allow for a mix of both paradigms. Some implementations make use of broadcast or multicast distribution paradigm
+* Transformation: in a message-based middleware system, the message received at the destination need not be identical to the message originally sent. A MOM system with built-in intelligence can transform messages en route to match the requirements of the sender or of the recipient
+#### Disadvantages for MOM
+The primary disadvantage of many message-oriented middleware systems is that they require an extra component in the architecture, the message transfer agent (message broker). As with any system, adding another component can lead to reductions in performance and reliability, and can also make the system as a whole more difficult and expensive to maintain.
+
+**Message Brokers**
+Some commonly used message brokers include: `Apache Kafka`,`Celery`, and `RabbitMQ`. These message brokers are usually based on a pub-sub (publish-subscribe) pattern. This messaging pattern, different from the client-server one we learned in Lecture 1, is where senders of messages, called publishers, do not program the messages to be sent directly to specific receivers, called subscribers, but instead categorize published messages into classes without knowledge of which subscribers, if any, there may be. Similarly, subscribers express interest in one or more classes and only receive messages that are of interest, without knowledge of which publishers, if any, there are.
+
+In the publish–subscribe model, subscribers typically receive only a subset of the total messages published. The process of selecting messages for reception and processing is called filtering. There are two common forms of filtering: topic-based and content-based.
+
+* topic-based system: messages are published to "topics" or named logical channels. Subscribers in a topic-based system will receive all messages published to the topics to which they subscribe, and all subscribers to a topic will receive the same messages. The publisher is responsible for defining the classes of messages to which subscribers can subscribe.
+
+* content-based system: messages are only delivered to a subscriber if the attributes or content of those messages match constraints defined by the subscriber. The subscriber is responsible for classifying the messages.
+
+Some systems support a hybrid of the two; publishers post messages to a topic while subscribers register content-based subscriptions to one or more topics.
+
+These systems are commonly used for logging purposes but message passing in distributed systems are an example use case.
+
+**Messaging Queues**
+The message queue paradigm is a sibling of the pub-sub pattern. Message queues provide an asynchronous communications protocol, meaning that the sender and receiver of the message do not need to interact with the message queue at the same time. Messages placed onto the queue are stored until the recipient retrieves them. Message queues have implicit or explicit limits on the size of data that may be transmitted in a single message and the number of messages that may remain outstanding on the queue. `StormMQ`, and `Apache Quid` are both examples.
+
+### Why use Distributed Systems?
+Well, typically, data in a large database may be distributed across multiple machines/nodes or replicated on multiple machines/nodes.
+
+The main reasons to distribute your data would usually be for scalability or availability reasons, where the conditions could be that there are few programs that need to access ALL of your data and there is a need for strong data locality i.e. the customers need to be satisfied with faster response when given their geographical area.
+
+The main reasons to replicate your data would be again for scalability or availability reasons, where you may want multiple machines to help share the load on very high-demand data or for fault-tolerance reasons where if a machine goes down the system will still function.
+
 ### Sharding
 ### Transactions
 ### Bloom Filters

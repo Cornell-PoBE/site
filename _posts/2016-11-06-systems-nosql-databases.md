@@ -197,7 +197,7 @@ failures.
 
 To achieve high availability and durability, DynamoDB replicates its data on multiple hosts. Each data item is replicated on N hosts, where N represents a parameter configured “per-instance”. Each key, k, is assigned to a coordinator node.  The coordinator is in charge of the replication of the data items that fall within its range. In addition to locally storing each key within its range, the coordinator replicates these keys at the N-1 clockwise successor nodes in the ring. This results in a system where each node is responsible for the region of the ring between it and its Nth predecessor. In the above ring figure, node B replicates the key k at nodes C and D in addition to storing it locally. Node D will store the keys that fall in the ranges `(A, B]`, `(B, C]`, and `(C, D]`.
 
-**Gossip**
+**Gossip for Fault Detection**
 
 A gossip protocol is a style of computer-to-computer communication protocol inspired by the form of gossip seen in social networks. Modern distributed systems often use gossip protocols to solve problems that might be difficult to solve in other ways, either because the underlying network has an inconvenient structure, is extremely large, or because gossip solutions are the most efficient ones available. The term epidemic protocol is sometimes used as a synonym for a gossip protocol, because gossip spreads information in a manner similar to the spread of a virus in a biological community. In Amazon’s environment node outages (due to failures and maintenance tasks) are often transient but may last for extended intervals. A node outage rarely signifies a permanent departure and therefore should not result in rebalancing of the partition assignment or repair of the unreachable replicas. Similarly, manual error could result in the unintentional startup of new nodes. For these reasons, it was deemed appropriate to use an explicit mechanism to initiate the addition and removal of nodes from the consistent hashing ring. An administrator uses a command line tool or a browser to connect to a node and issue a membership change to join a node to a ring or remove a node from a ring. The node that serves the request writes the membership change and its time of issue to persistent store. The membership changes form a history because nodes can be removed and added back multiple times. A gossip-based protocol propagates membership changes and maintains an eventually consistent view of membership. Each node contacts a peer chosen at random every second and the two nodes efficiently reconcile their persisted membership change histories.
 
@@ -296,5 +296,39 @@ The main reasons to distribute your data would usually be for scalability or ava
 The main reasons to replicate your data would be again for scalability or availability reasons, where you may want multiple machines to help share the load on very high-demand data or for fault-tolerance reasons where if a machine goes down the system will still function.
 
 ### Sharding
+Database systems with large data sets and high throughput applications can challenge the capacity of a single server. High query rates can exhaust the CPU capacity of the server. Larger data sets exceed the storage capacity of a single machine. Finally, working set sizes larger than the system’s RAM stress the I/O capacity of disk drives.
+
+To address these issues of scales, database systems have two basic approaches: vertical scaling and sharding.
+
+Vertical scaling adds more CPU and storage resources to increase capacity. Scaling by adding capacity has limitations: high performance systems with large numbers of CPUs and large amount of RAM are disproportionately more expensive than smaller systems. Additionally, cloud-based providers may only allow users to provision smaller instances. As a result there is a practical maximum capability for vertical scaling.
+
+Sharding, or horizontal scaling, by contrast, divides the data set and distributes the data over multiple servers, or shards. Each shard is an independent database, and collectively, the shards make up a single logical database.
+
+In NoSQL systems like MongoDB sharding functions this way:
+![Sharding-Intro](https://docs.mongodb.com/v3.0/_images/sharded-collection.png)
+
+Sharding addresses the challenge of scaling to support high throughput and large data sets:
+
+Sharding reduces the number of operations each shard handles. Each shard processes fewer operations as the cluster grows. As a result, a cluster can increase capacity and throughput horizontally.
+For example, to insert data, the application only needs to access the shard responsible for that record.
+Sharding reduces the amount of data that each server needs to store. Each shard stores less data as the cluster grows.
+For example, if a database has a 1 terabyte data set, and there are 4 shards, then each shard might hold only 256GB of data. If there are 40 shards, then each shard might hold only 25GB of data.
+
+The specificies of how to shard are unique for each system. For example, in MongoDB a sharded cluster has the following components: shards, query routers and config servers where:
+* Shard: responsible for storing the data and providing high availability and data consistency. In a production sharded cluster, each shard is a replica set
+
+* Query Routers, or mongos instances: interface with client applications and direct operations to the appropriate shard or shards. The query router processes and targets operations to shards and then returns results to the clients. A sharded cluster can contain more than one query router to divide the client request load. A client sends requests to one query router. Most sharded clusters have many query routers.
+
+* Config servers: store the cluster’s metadata. This data contains a mapping of the cluster’s data set to the shards. The query router uses this metadata to target operations to specific shards. Production sharded clusters have exactly 3 config servers.
+
+To shard a collection, you need to select a shard key. A shard key is either an indexed field or an indexed compound field that exists in every document in the collection. MongoDB divides the shard key values into chunks and distributes the chunks evenly across the shards. To divide the shard key values into chunks, MongoDB uses either range based partitioning or hash based partitioning.
+![Range-sharding](https://docs.mongodb.com/v3.0/_images/sharding-range-based.png)
+For range-based sharding, MongoDB divides the data set into ranges determined by the shard key values to provide range based partitioning. Consider a numeric shard key: If you visualize a number line that goes from negative infinity to positive infinity, each value of the shard key falls at some point on that line. MongoDB partitions this line into smaller, non-overlapping ranges called chunks where a chunk is range of values from some minimum value to some maximum value.
+![Hash-Based](https://docs.mongodb.com/v3.0/_images/sharding-hash-based.png)
+For hash based partitioning, MongoDB computes a hash of a field’s value, and then uses these hashes to create chunks.
+With hash based partitioning, two documents with “close” shard key values are unlikely to be part of the same chunk. This ensures a more random distribution of a collection in the cluster.
+
+These types of sharding techniques are optimized for certain queries. This in essence is similar in intuition to hash indexes and range indexes. Range based partitioning supports more efficient range queries. Given a range query on the shard key, the query router can easily determine which chunks overlap that range and route the query to only those shards that contain these chunks. However, range based partitioning can result in an uneven distribution of data, which may negate some of the benefits of sharding. Hash based partitioning, by contrast, ensures an even distribution of data at the expense of efficient range queries.
+
 ### Transactions
 ### Bloom Filters

@@ -227,8 +227,6 @@ Data model
 Serialization (Avro / Parquet / Protobuf)
 
 Querying
-
-## Map Reduce
 ## Distributed Systems
 Distributed computing is a field of computer science that studies distributed systems. A distributed system is a model in which components located on networked computers communicate and coordinate their actions by passing messages. The components interact with each other in order to achieve a common goal. Three significant characteristics of distributed systems are: concurrency of components, lack of a global clock, and independent failure of components. There are many alternatives for the message passing mechanism, including pure HTTP like we have seen, RPC-like connectors, and message queues which could be in the form of a Pub-Sub system that we will elaborate on below.
 ### Message Passing
@@ -314,7 +312,7 @@ For example, to insert data, the application only needs to access the shard resp
 Sharding reduces the amount of data that each server needs to store. Each shard stores less data as the cluster grows.
 For example, if a database has a 1 terabyte data set, and there are 4 shards, then each shard might hold only 256GB of data. If there are 40 shards, then each shard might hold only 25GB of data.
 
-The specificies of how to shard are unique for each system. For example, in MongoDB a sharded cluster has the following components: shards, query routers and config servers where:
+The specifics of how to shard are unique for each system. For example, in MongoDB a sharded cluster has the following components: shards, query routers and config servers where:
 * Shard: responsible for storing the data and providing high availability and data consistency. In a production sharded cluster, each shard is a replica set
 
 * Query Routers, or mongos instances: interface with client applications and direct operations to the appropriate shard or shards. The query router processes and targets operations to shards and then returns results to the clients. A sharded cluster can contain more than one query router to divide the client request load. A client sends requests to one query router. Most sharded clusters have many query routers.
@@ -322,13 +320,47 @@ The specificies of how to shard are unique for each system. For example, in Mong
 * Config servers: store the cluster’s metadata. This data contains a mapping of the cluster’s data set to the shards. The query router uses this metadata to target operations to specific shards. Production sharded clusters have exactly 3 config servers.
 
 To shard a collection, you need to select a shard key. A shard key is either an indexed field or an indexed compound field that exists in every document in the collection. MongoDB divides the shard key values into chunks and distributes the chunks evenly across the shards. To divide the shard key values into chunks, MongoDB uses either range based partitioning or hash based partitioning.
-![Range-sharding](https://docs.mongodb.com/v3.0/_images/sharding-range-based.png)
+![Range-Based](https://docs.mongodb.com/v3.0/_images/sharding-range-based.png)
+
 For range-based sharding, MongoDB divides the data set into ranges determined by the shard key values to provide range based partitioning. Consider a numeric shard key: If you visualize a number line that goes from negative infinity to positive infinity, each value of the shard key falls at some point on that line. MongoDB partitions this line into smaller, non-overlapping ranges called chunks where a chunk is range of values from some minimum value to some maximum value.
 ![Hash-Based](https://docs.mongodb.com/v3.0/_images/sharding-hash-based.png)
+
 For hash based partitioning, MongoDB computes a hash of a field’s value, and then uses these hashes to create chunks.
 With hash based partitioning, two documents with “close” shard key values are unlikely to be part of the same chunk. This ensures a more random distribution of a collection in the cluster.
 
 These types of sharding techniques are optimized for certain queries. This in essence is similar in intuition to hash indexes and range indexes. Range based partitioning supports more efficient range queries. Given a range query on the shard key, the query router can easily determine which chunks overlap that range and route the query to only those shards that contain these chunks. However, range based partitioning can result in an uneven distribution of data, which may negate some of the benefits of sharding. Hash based partitioning, by contrast, ensures an even distribution of data at the expense of efficient range queries.
 
-### Transactions
-### Bloom Filters
+### Challenges in Multi-Node Systems
+So what are some challenges that exist when we move towards distributed systems.
+
+* Processing queries across multiple sites: i.e. What if I am joining two tables that are at different sites
+* Running distributed ACID transactions: i.e. How do we guarantee isolation such that if one of the transaction participants crashes in the middle
+* Keeping replicas in sync: i.e. What level of consistency do we wish to maintain on the replicas?
+* Dealing with failures where nodes goes down (i.e. after a replica is created, we need to take care of failure handling) or the network is partitioned (i.e. Even though all the data is still there, other node's might not and could get worried)
+
+We will now be doing a small case-study into distributed queries and different join strategies.
+
+#### Distributed Queries
+Our example use case will be querying on wines:
+
+```sql
+SELECT AVG(W.age)
+FROM Wines W
+WHERE W.rating  > 3
+AND W.rating < 7
+```
+
+Let us say that the data is horizontally partitioned. Where the wine tuples with rating <5 are in London and the wine tuples with a rating of >=5 are in NYC. As such, to calculate the `AVG` we would need to compute the `SUM` and `COUNT` at both sites while for the WHERE clause, tuples contained with W.rating>6, would use just one site.
+
+Let us say that the data is vertically partitioned. Where the wine tuples would have the `wid` and `rating` at
+London, `name` and `age` at NYC, `jid` at both. `wid` would be the wine tuple `id` while the `jid` would be some join id. As such, you could reconstruct the full relation by joining on `jid`, then evaluate the query. This type of system would be used if locally only some selection queries were needed per geographical region and the full relation wasn't necessary that often.
+#### Distributed Joins
+* Strategy 1: Compute and fetch as needed (If query was not submitted at NYC, must add cost of shipping result to query site)
+* Strategy 2: Send to one site and evaluate join locally (however, if the result size is very large, may be better to ship both relations to result site and then join them)
+* Strategy 3: `Semi-join.` In this case, we are trying to avoid shipping all of the NYC to London, for why can't we just ship the tuples that we will join with i.e. London values are projected onto join columns and shipped to NYC where they are joined with NYC specific values, giving the necessary reduction desired, and eventually shipping back to London to be joined with the full expansion of London's values.
+
+**Bloom Filters**
+Last strategy is leveraging Bloom Filters. This approach is similar to semi-join, but avoids shipping
+the whole projection as the result is expressed as a smaller bit-vector instead. This data structure is called a Bloom filter. For example, let us assume that you have some relation that resides at London. You would use relation to compute a bit-vector of some size k where you would hash the join attribute values into range `0 --> k-1`, where if some tuple hashes to I, set bit I to 1 (I from 0 to k-1); this is the bloom filter. We would then ship this bit-vector to NYC. At NYC, you would hash each tuple in NYC similarly, and discard tuples that hash to 0 in the London bit-vector which gives us the reduction of R with regards to S as desired. You would then ship this reduction back to London, where the join will take place. The advantage in such a strategy is that the bit-vector is cheaper to ship. This type of system obviously comes with some drawbacks: false positives are possible i.e. if the Bloom Filter says an element is NOT in the set, this is definitely true, but if the Bloom Filter says an element IS in the set, this may or may not be true.
+
+## Map Reduce and Apache Spark

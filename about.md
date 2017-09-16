@@ -4,4 +4,8 @@ title: "About"
 permalink: /about/
 ---
 
-This is the official course page of CS 1998 - Principles of Backend Development! 
+This is the official course page of CS 1998 - Principles of Backend Development!
+
+This course is instructed by Joe Antonakakis and Ilan Filonenko in Fall 2017.
+
+Class time is from **5:30pm to 6:30pm** on **Monday** at **Kimbell B11**.

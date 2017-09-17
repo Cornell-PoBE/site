@@ -281,10 +281,25 @@ If `W + R > N`, you can guarantee strong consistency where the read and write se
 * `W = 1`, `R = N` achieves fastest writes
 * `W=Q`, `R=Q` where `Q = N /(2 + 1)` where Q is a quorum or a consensus that is elaborated upon below in the Distributed Systems section.
 
-With such tunable consistency you can balance the trade-offs with a system like Cassandra to determine when you want certain bases of consistency vs. availability.
- 
-#### Apache HBase
+With such tunable consistency you can balance the trade-offs with a system like Cassandra to determine when you want certain levels of consistency vs. availability by setting the appropriate `ConsistencyLevel`.
 
+#### Apache HBase
+HBase is a NoSQL distributed database modeled after Google's Bigtable and is written in Java. It is developed as part of Apache Software Foundation's Apache Hadoop project and runs on top of HDFS (Hadoop Distributed File System), providing Bigtable-like capabilities for Hadoop. That is, it provides a fault-tolerant way of storing large quantities of sparse data i.e. small amounts of information caught within a large collection of empty or unimportant data, such as finding the 50 largest items in a group of 2 billion records, or finding the non-zero items representing less than 0.1% of a huge collection.
+
+HBase features compression, in-memory operation, and Bloom filters on a per-column basis as outlined in the original Bigtable paper. Tables in HBase can serve as the input and output for MapReduce jobs run in Hadoop, and may be accessed through the Java API but also through REST, `Avro` or `Thrift` gateway APIs. HBase is a column-oriented key-value data store and has been idolized widely because of its lineage with Hadoop and `HDFS`. HBase runs on top of HDFS and is well-suited for faster read and write operations on large datasets with high throughput and low input/output latency. HBase is not a direct replacement for a classic SQL database, however the `Apache Phoenix` project provides an SQL layer for HBase as well as JDBC driver that can be integrated with various analytics and business intelligence applications. HBase would be considered a CP database.
+
+HBase's main features include:
+* Linear and modular scalability.
+* Strictly consistent reads and writes.
+* Automatic and configurable sharding of tables
+* Automatic failover support between RegionServers.
+* Convenient base classes for backing Hadoop MapReduce jobs with Apache HBase tables.
+* Easy to use Java API for client access.
+* Block cache and Bloom Filters for real-time queries.
+* Query predicate push down via server side Filters
+* Thrift gateway and a REST-ful Web service that supports XML, Protobuf, and binary data encoding options
+* Extensible jruby-based (JIRB) shell
+* Support for exporting metrics/telemetry via the Hadoop metrics subsystem to files or Ganglia; or via JMX
 ## Document-oriented DB
 ### MongoDB
 

@@ -201,6 +201,36 @@ To achieve high availability and durability, DynamoDB replicates its data on mul
 
 A gossip protocol is a style of computer-to-computer communication protocol inspired by the form of gossip seen in social networks. Modern distributed systems often use gossip protocols to solve problems that might be difficult to solve in other ways, either because the underlying network has an inconvenient structure, is extremely large, or because gossip solutions are the most efficient ones available. The term epidemic protocol is sometimes used as a synonym for a gossip protocol, because gossip spreads information in a manner similar to the spread of a virus in a biological community. In Amazon’s environment node outages (due to failures and maintenance tasks) are often transient but may last for extended intervals. A node outage rarely signifies a permanent departure and therefore should not result in rebalancing of the partition assignment or repair of the unreachable replicas. Similarly, manual error could result in the unintentional startup of new nodes. For these reasons, it was deemed appropriate to use an explicit mechanism to initiate the addition and removal of nodes from the consistent hashing ring. An administrator uses a command line tool or a browser to connect to a node and issue a membership change to join a node to a ring or remove a node from a ring. The node that serves the request writes the membership change and its time of issue to persistent store. The membership changes form a history because nodes can be removed and added back multiple times. A gossip-based protocol propagates membership changes and maintains an eventually consistent view of membership. Each node contacts a peer chosen at random every second and the two nodes efficiently reconcile their persisted membership change histories.
 
+**CAP Theorem**
+
+It is known that data is replicated for performance and failover purposes i.e. you want multiple machines to help share the load on very high-demand data or for fault-tolerance reasons where if a machine goes down the system will still function.
+
+Therefore, it would be ideal that you want access to a single object to be atomic / linearizable i.e. if several processes are using the same object, it should "look like" they were accessing it in sequence on a single-node system. Linearizablity requirements include:
+* total order on operations across the whole system
+* consistent with wall-clock ordering for non-overlapping regions
+* if a read is ordered after a write, the read should see the value written by that write (or a later one)
+
+Linearizablity is also known as consistency. The problem is that we want to enforce this without sacrificing availability i.e. users can perform reads/writes when they want to.
+
+With all this talk of consistency and being highly available it is important to introduce the CAP theorem as this is something that is used throughout distributed computing and when analyzing most NoSQL systems.
+
+The CAP theorem, also named Brewer's theorem after computer scientist Eric Brewer, states that it is impossible for a distributed data store to simultaneously provide more than two out of the following three guarantees:
+* Consistency: Every read receives the most recent write or an error
+* Availability: Every request receives a (non-error) response – without guarantee that it contains the most recent write
+* Partition Tolerance: The system continues to operate despite an arbitrary number of messages being dropped (or delayed) by the network between nodes
+
+It is also worth noting, that when breaking down the CAP theorem, it is actually possible to have all 3, but you can't have C(Consistency) and A(Availability) during P(network-failure).
+
+Furthermore, no distributed system is safe from network failures, thus network partitioning generally has to be tolerated. In the presence of a partition, one is then left with two options: consistency or availability. When choosing consistency over availability, the system will return an error or a time-out if particular information cannot be guaranteed to be up to date due to network partitioning. When choosing availability over consistency, the system will always process the query and try to return the most recent available version of the information, even if it cannot guarantee it is up to date due to network partitioning.
+
+CAP is frequently misunderstood as if one had to choose to abandon one of the three guarantees at all times. In fact, the choice is really between consistency and availability only when a network partition or failure happens ; at all other times, no trade-off has to be made.
+
+![CAP-Venn](https://lh5.googleusercontent.com/-2QOlwUJQC1o/UsWOOFUTRkI/AAAAAAAAAEA/Y-gRB58QixY/w547-h520/cap_venn.png)
+
+As such example systems like: MongoDB, HBase, and Google Bigtable provide guarantees of enforced or Strong Consistency while systems like: CouchDB, Riak, and Apache Cassandra give eventual consistency. We will be analyzing HBase and Cassandra in the next section.
+
+When looking at DynamoDB, since that is our current example, we see that it sacrifices consistency (on certain failure instances) for availability. As such this is a AP system that is highly available.
+
 #### Google App Engine Datastore
 Google App Engine Datastore is a NoSQL document database built for automatic scaling, high performance, and ease of application development that also extends the key-value store. GAE Datastore contains entities ("tuples"), which have some properties ("attributes") and belong to kinds ("tables") where you can perform programmatic queries (basically select-project) but have to create indexes on appropriate properties to perform queries on non-key values.
 
@@ -211,12 +241,19 @@ Google App Engine Datastore is a NoSQL document database built for automatic sca
 * Cloud Datastore reads scale because the only queries supported are those whose performance scales with the size of the result set (as opposed to the data set). This means that a query whose result set contains 100 entities performs the same whether it searches over a hundred entities or a million. This property is the key reason some types of queries are not supported.
 
 ### Column Family data model
+A column family is a NoSQL object that contains columns of related data. It is a tuple (pair) that consists of a key-value pair, where the key is mapped to a value that is a set of columns. In analogy with relational databases, a column family is as a "table", each key-value pair being a "row". Each column is a tuple (triplet) consisting of a column name, a value, and a timestamp. In a relational database table, this data would be grouped together within a table with other non-related data. A keyspace in a NoSQL data store is an object that holds together all column families of a design. The keyspace has similar importance like a schema has in a database. However, in contrast, the contents of the keyspace can be column families, each having different number of columns, or even different columns. So, the column families that somehow relate to the row concept in relational databases do not stipulate any fixed structure. The only point that is the same with a schema is that it also contains a number of "objects", which are tables in RDBMS systems and here column families or super columns. So, in distributed data stores, the whole burden to handle rows that may even change from data-store update to update lies on the shoulders of the programmers.
 
-CAP Theorem
+In essence, the basic idea is that there is a map with keys being: `<rowid, columnid, timestamp` and the values being, whatever is specified by the keyspace. It is similar to a normal relational table but it can have several different versions of the same data item with different timestamps. The functions of these timestamps is to keep multiple versions of the same data and to bound the number of versions kept. Naturally, the default queries will return the newest version. The use of column families are to design for when most rows do not have values in all the possible columns or where the map is very sparse. Similar to what was going on in DynamoDB, but more extreme.
 
-ACID
+Additional abstractions are that all columns store related data are in a single column family which could be defined as a container for columns. As such, it functions as the unit of storage and of access. However, these column families need to be specified in advance, columns, not necessarily.
 
+Here is an example of the column family:
+![Column-Family](https://i.imgur.com/uhpXToH.png)
+Where you have two column families that will respectively relate to certain queries of focus.
+
+We now will be looking at the two largest NoSQL stores that leverage the Column Family data model.
 #### Apache Cassandra
+
 #### Apache HBase
 
 ## Document-oriented DB
@@ -235,6 +272,7 @@ Message-oriented middleware (MOM) is software or hardware infrastructure support
 * Remote Procedure Call or RPC-based middleware
 * Object Request Broker or ORB-based middleware
 * Message Oriented Middleware or MOM-based middleware
+
 All these models make it possible for one software component to affect the behavior of another component over a network. They are different in that RPC and ORB-based middleware create systems of tightly coupled components, whereas MOM-based systems allow for a looser coupling of components. In essence, RPC and ORB-based systems are synchronous, where when one procedure calls another, it must wait for the called procedure to return before it can do anything else.
 
 Central reasons for using a message-based communications protocol include its ability to store/buffer, route, or transform messages while conveying them from senders to receivers. These message passing systems engage in certain conceptual models that deal with concurrent computation. An example of such a model is the Actor Model.
@@ -253,11 +291,13 @@ Messages are sent asynchronously to an actor, that needs to store them somewhere
 The two main advantages of such a model are for fault tolerance and distribution.
 
 **Fault Tolerance**
-In such a model the actors are processes are completely isolated, meaning its state is not going to influence any other process. As such, faults can be managed by having a supervisor, that is basically another process, that will be notified when the supervised process crashes and then can do something about it.
+
+In such a model the actors are processes that are completely isolated, meaning its state is not going to influence any other process. As such, faults can be managed by having a supervisor, that is basically another process, that will be notified when the supervised process crashes and then can do something about it.
 
 This makes it possible to create systems that “self heal”, meaning that if an actor gets to an exceptional state and crashes, by whatever reason, a supervisor can do something about it to try to put it in a consistent state again (and there are multiple strategies to do that, the most common being just to restart the actor with its initial state).
 
 **Distribution**
+
 Naturally these types of models lend themselves towards distribution where it doesn’t matter if the actor that I’m sending a message to is running locally or in another node. For example if an actor is just a process with a mailbox and an internal state, and it just respond to messages, who cares in which machine it’s actually running? As long as we can make the message get there we are fine. This allows us to create systems that leverage multiple computers and helps us to recover if one of them fail.
 
 #### Back to Middleware
@@ -267,10 +307,12 @@ I will now go into some advantages and disadvantages in using a MOM rather than 
 * Asynchronicity: a client makes an API call to send a message to a destination managed by the provider. The call invokes provider services to route and deliver the message. Once it has sent the message, the client can continue to do other work, confident that the provider retains the message until a receiving client retrieves it. The message-based model, coupled with the mediation of the provider, makes it possible to create a system of loosely coupled components.
 * Routing: many message-oriented middleware implementations depend on a message queue system. Some implementations permit routing logic to be provided by the messaging layer itself, while others depend on client applications to provide routing information or allow for a mix of both paradigms. Some implementations make use of broadcast or multicast distribution paradigm
 * Transformation: in a message-based middleware system, the message received at the destination need not be identical to the message originally sent. A MOM system with built-in intelligence can transform messages en route to match the requirements of the sender or of the recipient
+
 #### Disadvantages for MOM
 The primary disadvantage of many message-oriented middleware systems is that they require an extra component in the architecture, the message transfer agent (message broker). As with any system, adding another component can lead to reductions in performance and reliability, and can also make the system as a whole more difficult and expensive to maintain.
 
 **Message Brokers**
+
 Some commonly used message brokers include: `Apache Kafka`,`Celery`, and `RabbitMQ`. These message brokers are usually based on a pub-sub (publish-subscribe) pattern. This messaging pattern, different from the client-server one we learned in Lecture 1, is where senders of messages, called publishers, do not program the messages to be sent directly to specific receivers, called subscribers, but instead categorize published messages into classes without knowledge of which subscribers, if any, there may be. Similarly, subscribers express interest in one or more classes and only receive messages that are of interest, without knowledge of which publishers, if any, there are.
 
 In the publish–subscribe model, subscribers typically receive only a subset of the total messages published. The process of selecting messages for reception and processing is called filtering. There are two common forms of filtering: topic-based and content-based.
@@ -284,6 +326,7 @@ Some systems support a hybrid of the two; publishers post messages to a topic wh
 These systems are commonly used for logging purposes but message passing in distributed systems are an example use case.
 
 **Messaging Queues**
+
 The message queue paradigm is a sibling of the pub-sub pattern. Message queues provide an asynchronous communications protocol, meaning that the sender and receiver of the message do not need to interact with the message queue at the same time. Messages placed onto the queue are stored until the recipient retrieves them. Message queues have implicit or explicit limits on the size of data that may be transmitted in a single message and the number of messages that may remain outstanding on the queue. `StormMQ`, and `Apache Quid` are both examples.
 
 ### Why use Distributed Systems?
@@ -360,6 +403,7 @@ London, `name` and `age` at NYC, `jid` at both. `wid` would be the wine tuple `i
 * Strategy 3: `Semi-join.` In this case, we are trying to avoid shipping all of the NYC to London, for why can't we just ship the tuples that we will join with i.e. London values are projected onto join columns and shipped to NYC where they are joined with NYC specific values, giving the necessary reduction desired, and eventually shipping back to London to be joined with the full expansion of London's values.
 
 **Bloom Filters**
+
 Last strategy is leveraging Bloom Filters. This approach is similar to semi-join, but avoids shipping
 the whole projection as the result is expressed as a smaller bit-vector instead. This data structure is called a Bloom filter. For example, let us assume that you have some relation that resides at London. You would use relation to compute a bit-vector of some size k where you would hash the join attribute values into range `0 --> k-1`, where if some tuple hashes to I, set bit I to 1 (I from 0 to k-1); this is the bloom filter. We would then ship this bit-vector to NYC. At NYC, you would hash each tuple in NYC similarly, and discard tuples that hash to 0 in the London bit-vector which gives us the reduction of R with regards to S as desired. You would then ship this reduction back to London, where the join will take place. The advantage in such a strategy is that the bit-vector is cheaper to ship. This type of system obviously comes with some drawbacks: false positives are possible i.e. if the Bloom Filter says an element is NOT in the set, this is definitely true, but if the Bloom Filter says an element IS in the set, this may or may not be true.
 

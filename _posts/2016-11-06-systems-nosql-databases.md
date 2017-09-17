@@ -227,7 +227,7 @@ CAP is frequently misunderstood as if one had to choose to abandon one of the th
 
 ![CAP-Venn](https://lh5.googleusercontent.com/-2QOlwUJQC1o/UsWOOFUTRkI/AAAAAAAAAEA/Y-gRB58QixY/w547-h520/cap_venn.png)
 
-As such example systems like: MongoDB, HBase, and Google Bigtable provide guarantees of enforced or Strong Consistency while systems like: CouchDB, Riak, and Apache Cassandra give eventual consistency. We will be analyzing HBase and Cassandra in the next section.
+As such example systems like: MongoDB, Apache HBase, and Google Bigtable provide guarantees of enforced or Strong Consistency while systems like: CouchDB, Riak, and Apache Cassandra give eventual consistency. We will be analyzing HBase and Cassandra in the next section.
 
 When looking at DynamoDB, since that is our current example, we see that it sacrifices consistency (on certain failure instances) for availability. As such this is a AP system that is highly available.
 
@@ -253,7 +253,36 @@ Where you have two column families that will respectively relate to certain quer
 
 We now will be looking at the two largest NoSQL stores that leverage the Column Family data model.
 #### Apache Cassandra
+Apache Cassandra is a free and open-source distributed NoSQL database management system designed to handle large amounts of data across many commodity servers, providing high availability with no single point of failure. Cassandra offers robust support for clusters spanning multiple datacenters, with asynchronous masterless replication allowing low latency operations for all clients.
 
+Cassandra is essentially a hybrid between a key-value and a column-oriented (or tabular) database management system. Its data model is a partitioned row store with tunable consistency. Rows are organized into tables; the first component of a table's primary key is the partition key; within a partition, rows are clustered by the remaining columns of the key. Other columns may be indexed separately from the primary key. Tables may be created, dropped, and altered at run-time without blocking updates and queries.Cassandra cannot do joins or subqueries. Rather, Cassandra emphasizes denormalization through features like collections.
+
+The main features of Apache Cassandra are the following:
+* Decentralized: Every node in the cluster has the same role. There is no single point of failure. Data is distributed across the cluster (so each node contains different data), but there is no master as every node can service any request
+* Replication: Replication strategies are configurable. Key features of Cassandra’s distributed architecture are specifically tailored for multiple-data center deployment, for redundancy, for failover and disaster recovery
+* Scalability: Designed to have read and write throughput both increase linearly as new machines are added, with the aim of no downtime or interruption to applications
+* Fault-tolerant: Data is automatically replicated to multiple nodes for fault-tolerance
+* Tunable consistency: Writes and reads offer a tunable level of consistency, all the way from "writes never fail" to "block for all replicas to be readable", with the quorum level in the middle
+* MapReduce support: Cassandra has Hadoop integration, with MapReduce support. (This is elaborated upon below)
+* Query language: Leverages Cassandra Query Language (CQL) which is a simple interface for accessing Cassandra
+
+Something that is extremely unique, in my opinion, is the tunable consistency.
+
+**Eventual Consistency**
+System must always be able to take reads and write even when network becomes partitioned. This comes at a consequence as you can no longer guarantee all replicas keep in sync. Therefore, replicas do eventually get back into sync, but there is a definite window of inconsistency.
+
+From a system perspective there are 3 main parameters to focus on:
+* N: replication factor i.e. How many copies of the data are stored?
+* R: How many replicas are checked during a read?
+* W: How many replicas must acknowledge receipt of a write?
+
+If `W + R > N`, you can guarantee strong consistency where the read and write set always overlaps, but at the cost of availability. Here are some example analysis of trade-offs:
+* `W = N`, `R = 1` achieves fastest reads
+* `W = 1`, `R = N` achieves fastest writes
+* `W=Q`, `R=Q` where `Q = N /(2 + 1)` where Q is a quorum or a consensus that is elaborated upon below in the Distributed Systems section.
+
+With such tunable consistency you can balance the trade-offs with a system like Cassandra to determine when you want certain bases of consistency vs. availability.
+ 
 #### Apache HBase
 
 ## Document-oriented DB

@@ -252,7 +252,9 @@ Here is an example of the column family:
 Where you have two column families that will respectively relate to certain queries of focus.
 
 We now will be looking at the two largest NoSQL stores that leverage the Column Family data model.
+
 #### Apache Cassandra
+
 Apache Cassandra is a free and open-source distributed NoSQL database management system designed to handle large amounts of data across many commodity servers, providing high availability with no single point of failure. Cassandra offers robust support for clusters spanning multiple datacenters, with asynchronous masterless replication allowing low latency operations for all clients.
 
 Cassandra is essentially a hybrid between a key-value and a column-oriented (or tabular) database management system. Its data model is a partitioned row store with tunable consistency. Rows are organized into tables; the first component of a table's primary key is the partition key; within a partition, rows are clustered by the remaining columns of the key. Other columns may be indexed separately from the primary key. Tables may be created, dropped, and altered at run-time without blocking updates and queries.Cassandra cannot do joins or subqueries. Rather, Cassandra emphasizes denormalization through features like collections.
@@ -269,6 +271,7 @@ The main features of Apache Cassandra are the following:
 Something that is extremely unique, in my opinion, is the tunable consistency.
 
 **Eventual Consistency**
+
 System must always be able to take reads and write even when network becomes partitioned. This comes at a consequence as you can no longer guarantee all replicas keep in sync. Therefore, replicas do eventually get back into sync, but there is a definite window of inconsistency.
 
 From a system perspective there are 3 main parameters to focus on:
@@ -284,6 +287,7 @@ If `W + R > N`, you can guarantee strong consistency where the read and write se
 With such tunable consistency you can balance the trade-offs with a system like Cassandra to determine when you want certain levels of consistency vs. availability by setting the appropriate `ConsistencyLevel`.
 
 #### Apache HBase
+
 HBase is a NoSQL distributed database modeled after Google's Bigtable and is written in Java. It is developed as part of Apache Software Foundation's Apache Hadoop project and runs on top of HDFS (Hadoop Distributed File System), providing Bigtable-like capabilities for Hadoop. That is, it provides a fault-tolerant way of storing large quantities of sparse data i.e. small amounts of information caught within a large collection of empty or unimportant data, such as finding the 50 largest items in a group of 2 billion records, or finding the non-zero items representing less than 0.1% of a huge collection.
 
 HBase features compression, in-memory operation, and Bloom filters on a per-column basis as outlined in the original Bigtable paper. Tables in HBase can serve as the input and output for MapReduce jobs run in Hadoop, and may be accessed through the Java API but also through REST, `Avro` or `Thrift` gateway APIs. HBase is a column-oriented key-value data store and has been idolized widely because of its lineage with Hadoop and `HDFS`. HBase runs on top of HDFS and is well-suited for faster read and write operations on large datasets with high throughput and low input/output latency. HBase is not a direct replacement for a classic SQL database, however the `Apache Phoenix` project provides an SQL layer for HBase as well as JDBC driver that can be integrated with various analytics and business intelligence applications. HBase would be considered a CP database.
@@ -300,14 +304,71 @@ HBase's main features include:
 * Thrift gateway and a REST-ful Web service that supports XML, Protobuf, and binary data encoding options
 * Extensible jruby-based (JIRB) shell
 * Support for exporting metrics/telemetry via the Hadoop metrics subsystem to files or Ganglia; or via JMX
+
 ## Document-oriented DB
+A document-oriented database, or document store, is designed for storing, retrieving and managing document-oriented information, also known as semi-structured data.
+
+In comparison to the Column-Family Data model it is even richer. A good example system is MongoDB which basically allows you to store JSON objects and the system understands that they are JSON objects so that you can query in ways that take that structure into account.
+
+### JSON
+JSON or Javascript Object Notation is a lightweight format for specifying documents similar to something like XML (don't let the name deceive you for it is language independent). An example JSON structure would be the following:
+
+```json
+{
+  "wines": [
+    {
+      "type": "Merlot",
+      "price": "15.99"
+    },
+    {
+      "type": "Malbec",
+      "price": "14.99"
+    }
+  ]
+}
+```
+The fundamentals of JSON are that they are built on two structures:
+* Object: This functions as an unordered set of name/value pairs which are enclosed by {}. The name is a string and the value can be a string, number, true/false/null, or an object or an array (nesting possible)
+* Array: An array of ordered list values which are enclosed by [] and are values that are comma separated.
+
+When dealing with structured data there are various optimizations and trade-offs in leveraging JSON in your production servers. Though JSON has many obvious advantages as a data interchange format - it is human readable, well understood, and typically performs well - it also has its issues. Some structured formats, such as Google’s `Protocol Buffers`, are a better choice than JSON for encoding data which you can read about [here](https://developers.google.com/protocol-buffers/docs/overview). Google developed `Protocol Buffers` for use in their internal services. It is a binary encoding format that allows you to specify a schema for your data using a specification language, like so:
+```ruby
+message Person {
+  required int32 = 1;
+  required string name = 2;
+  optional string email = 3;
+}
+```
+You can package messages within namespaces or declare them at the top level as above. The snippet defines the schema for a Person data type that has three fields: id, name, and email. In addition to naming a field, you can provide a type that will determine how the data is encoded and sent over the wire - above we see an int32 type and a string type. Keywords for validation and structure are also provided (required and optional above), and fields are numbered, which aids in backward compatibility, which I’ll cover in more detail below.
+
+The Protocol Buffers specification is implemented in various languages: Java, C, Go, etc. which means that one spec can be used to transfer data between systems regardless of their implementation language. As you can see, by providing a schema, we now automatically get a class that can be used to encode and decode messages into Protocol Buffer format. `Protocol Buffers` offers very real advantages not only in the ways outlined above, but also typically in terms of speed of encoding and decoding, size of the data on the wire, and more. This is something to look into when building a scalable system. Other example compression types include: `Apache Avro` and `Google Flat Buffers`.
+
 ### MongoDB
+As it has been discussed above. MongoDB is a document-oriented database that uses JSON-like documents with schemas.
 
-Data model
+The data model is that the Mongo system in totality holds a set of databases where the database holds a set of collections where the collection holds a set of documents ("table") where a document is a key-value pair that mimics the name-value structure in JSON. What is important to note about the collections is that because they are a set of documents this makes them polymorphic, meaning that they do not need to all have the same schema.
 
-Serialization (Avro / Parquet / Protobuf)
+Objects each have a special attributed_id which is unique and identifies an object.
 
-Querying
+```bash
+> x={wine="Merlot"};
+{wine="Merlot"}
+> db.wines.save(x);
+WriteResult({"nInserted": 1})
+> db.wines.find();
+{"_id": ObjectID("123456789"), "wine": "Merlot"}
+```
+
+When we intend to query on such data we use functions like `db.TABLE_NAME.find({'wine':'Malbec'});`.
+Other query operators available include `and/or/not`, `in/not in`, some aggregation functions like `count`, `distinct`, and `group`, `sort`, `skip`, and `limit`. In essence, this is a very rich query languague which is unusual for a NoSQL database.
+
+## Overview
+Summary of Data Models:
+* Key-value: Project Voldemort, Redis
+* Generazlied key-value with range queries / limited selection: DynamoDB, GAE datastore
+* Column Family: HBase, Cassandra
+* Document-Oriented: MongoDB
+
 ## Distributed Systems
 Distributed computing is a field of computer science that studies distributed systems. A distributed system is a model in which components located on networked computers communicate and coordinate their actions by passing messages. The components interact with each other in order to achieve a common goal. Three significant characteristics of distributed systems are: concurrency of components, lack of a global clock, and independent failure of components. There are many alternatives for the message passing mechanism, including pure HTTP like we have seen, RPC-like connectors, and message queues which could be in the form of a Pub-Sub system that we will elaborate on below.
 ### Message Passing

@@ -502,6 +502,7 @@ Let us say that the data is horizontally partitioned. Where the wine tuples with
 
 Let us say that the data is vertically partitioned. Where the wine tuples would have the `wid` and `rating` at
 London, `name` and `age` at NYC, `jid` at both. `wid` would be the wine tuple `id` while the `jid` would be some join id. As such, you could reconstruct the full relation by joining on `jid`, then evaluate the query. This type of system would be used if locally only some selection queries were needed per geographical region and the full relation wasn't necessary that often.
+
 #### Distributed Joins
 * Strategy 1: Compute and fetch as needed (If query was not submitted at NYC, must add cost of shipping result to query site)
 * Strategy 2: Send to one site and evaluate join locally (however, if the result size is very large, may be better to ship both relations to result site and then join them)
@@ -512,4 +513,27 @@ London, `name` and `age` at NYC, `jid` at both. `wid` would be the wine tuple `i
 Last strategy is leveraging Bloom Filters. This approach is similar to semi-join, but avoids shipping
 the whole projection as the result is expressed as a smaller bit-vector instead. This data structure is called a Bloom filter. For example, let us assume that you have some relation that resides at London. You would use relation to compute a bit-vector of some size k where you would hash the join attribute values into range `0 --> k-1`, where if some tuple hashes to I, set bit I to 1 (I from 0 to k-1); this is the bloom filter. We would then ship this bit-vector to NYC. At NYC, you would hash each tuple in NYC similarly, and discard tuples that hash to 0 in the London bit-vector which gives us the reduction of R with regards to S as desired. You would then ship this reduction back to London, where the join will take place. The advantage in such a strategy is that the bit-vector is cheaper to ship. This type of system obviously comes with some drawbacks: false positives are possible i.e. if the Bloom Filter says an element is NOT in the set, this is definitely true, but if the Bloom Filter says an element IS in the set, this may or may not be true.
 
-## Map Reduce and Apache Spark
+## Hadoop MapReduce and Apache Spark
+Why build all of these systems in a distributed nature? What advantages can we leverage with our system setup this way for data analytics.
+
+In comes `Hadoop MapReduce`. `Hadoop MapReduce` is a software framework for easily writing applications which process vast amounts of data (multi-terabyte data-sets) in-parallel on large clusters (thousands of nodes) of commodity hardware in a reliable, fault-tolerant manner.
+
+A MapReduce job usually splits the input data-set into independent chunks which are processed by the map tasks in a completely parallel manner. The framework sorts the outputs of the maps, which are then input to the reduce tasks. Typically both the input and the output of the job are stored in a file-system. The framework takes care of scheduling tasks, monitoring them and re-executes the failed tasks.
+
+Typically the compute nodes and the storage nodes are the same, that is, the MapReduce framework and the Hadoop Distributed File System ([HDFS Architecture Guide](https://hadoop.apache.org/docs/current/hadoop-project-dist/hadoop-hdfs/HdfsDesign.html)) are running on the same set of nodes. This configuration allows the framework to effectively schedule tasks on the nodes where data is already present, resulting in very high aggregate bandwidth across the cluster.
+
+The MapReduce framework consists of a single master ResourceManager, one worker NodeManager per cluster-node, and MRAppMaster per application ([YARN Architecture Guide](https://hadoop.apache.org/docs/current/hadoop-yarn/hadoop-yarn-site/YARN.html)).
+
+The format of MapReduce is understood best with the canonical WordCount example:
+
+![Word-Count](https://cs.calvin.edu/courses/cs/374/exercises/12/lab/MapReduceWordCount.png)
+
+So what is MapReduce? It is a part of the Hadoop framework that is responsible for processing large data sets with a parallel and distributed algorithm on a cluster. As the name suggests, the MapReduce algorithm contains two important tasks: Map and Reduce. Map takes a set of data and converts it into another set of data, where individual elements are broken down into tuples (key/value pairs). On the other hand, Reduce takes the output from a map as an input and combines the data tuples into smaller set of tuples. In MapReduce, the data is distributed over the cluster and processed.
+
+The difference in `Apache Spark` is that it performs in-memory processing of data. This in-memory processing is a faster process as there is no time spent in moving the data/processes in and out of the disk, whereas MapReduce requires a lot of time to perform these input/output operations thereby increasing latency. You can read more about Apache Spark [here](https://databricks.com/spark/about) but here is a general breakdown of what Spark is and what advantages it provides in distributed data analysis.
+
+Apache Spark provides programmers with an application programming interface centered on a data structure called the resilient distributed dataset (RDD), a read-only multiset of data items distributed over a cluster of machines, that is maintained in a fault-tolerant way. It was developed in response to limitations in the MapReduce cluster computing paradigm, which forces a particular linear dataflow structure on distributed programs: MapReduce programs read input data from disk, map a function across the data, reduce the results of the map, and store reduction results on disk. Spark's RDDs function as a working set for distributed programs that offers a (deliberately) restricted form of distributed shared memory that is also able to store in-memory using different types of distribute in-memory storage solutions like `Alluxio`. `Alluxio`, formerly `Tachyon`, provides Spark with a reliable data sharing layer, enabling Spark to excel at performing application logic while Alluxio handles storage
+
+The availability of RDDs facilitates the implementation of both iterative algorithms, that visit their dataset multiple times in a loop, and interactive/exploratory data analysis, i.e., the repeated database-style querying of data. The latency of such applications (compared to a MapReduce implementation, as was common in Apache Hadoop stacks) may be reduced by several orders of magnitude. Among the class of iterative algorithms are the training algorithms for machine learning systems, which formed the initial impetus for developing Apache Spark.
+
+Apache Spark requires a cluster manager and a distributed storage system. For cluster management, Spark supports standalone (native Spark cluster), Hadoop YARN, Apache Mesos, and soon Google Kubernetes. For distributed storage, Spark can interface with a wide variety, including Hadoop Distributed File System (HDFS), MapR File System (MapR-FS), Cassandra, OpenStack Swift, Amazon S3, Kudu, or a custom solution can be implemented. Spark also supports a pseudo-distributed local mode, usually used only for development or testing purposes, where distributed storage is not required and the local file system can be used instead; in such a scenario, Spark is run on a single machine with one executor per CPU core.

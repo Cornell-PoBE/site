@@ -12,6 +12,10 @@ Class time is from **5:30pm to 6:30pm** on **Mondays** at **Kimball B11** starti
 
 Ilan Filonenko (if56) and Joe Antonakakis (jma353) will have office hours in the basement of Gates on Tuesdays from 5:30pm to 6:30pm.
 
+**In-Class Demos**
+
+In-class demo code can be found [here](https://github.com/Cornell-PoBE/demos).  We encourage you all to try out these examples on your local machine.
+
 **Announcements**
 
 **Lecture 1**

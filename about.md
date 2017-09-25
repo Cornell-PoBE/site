@@ -32,4 +32,4 @@ Lecture 1 slides [here](https://docs.google.com/presentation/d/e/2PACX-1vSlSTeSV
 
 **Lecture 2**
 
-Lecture 2 slides [here](https://docs.google.com/presentation/d/1AKqaddYDXF8_bDtkvsfJlN9Ny_0JK4W_NvQkG-1cyZU/edit#slide=id.gc6f73a04f_0_0)
+Lecture 2 slides [here](https://docs.google.com/presentation/d/1AKqaddYDXF8_bDtkvsfJlN9Ny_0JK4W_NvQkG-1cyZU/edit?usp=sharing)

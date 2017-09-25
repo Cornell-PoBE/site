@@ -14,6 +14,10 @@ Ilan Filonenko (if56) and Joe Antonakakis (jma353) will have office hours in the
 
 Piazza can be found here: [here](https://piazza.com/class/j802rzmnm2p4o4?cid=1). All Q/A should be directed there.
 
+**In-Class Demos**
+
+In-class demo code can be found [here](https://github.com/Cornell-PoBE/demos).  We encourage you all to try out these examples on your local machine.
+
 **Announcements**
 
 **Lecture 1**

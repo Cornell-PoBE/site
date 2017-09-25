@@ -18,6 +18,10 @@ Piazza can be found here: [here](https://piazza.com/class/j802rzmnm2p4o4?cid=1).
 
 In-class demo code can be found [here](https://github.com/Cornell-PoBE/demos).  We encourage you all to try out these examples on your local machine.
 
+**Project Assignments**
+
+Assignment 1 is out and can be found [here](https://github.com/Cornell-PoBE/A1). Due date is on October 9th, 2017. Submission should be done through CMS (to be setup on Wednesday). 
+
 **Announcements**
 
 **Lecture 1**

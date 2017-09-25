@@ -30,4 +30,6 @@ We will let you guys know when to sign up for the course via Student Center. If 
 
 Lecture 1 slides [here](https://docs.google.com/presentation/d/e/2PACX-1vSlSTeSV_qWQWF_9pXI4t5028GqAJAes5eD5M6nUew2NF8ldl4XUlemS0p-osbXDFzN3tF4EBuPaM-I/pub?start=false&loop=false&delayms=3000&slide=id.g238d43cf52_0_4)
 
+**Lecture 2**
+
 Lecture 2 slides [here](https://docs.google.com/presentation/d/1AKqaddYDXF8_bDtkvsfJlN9Ny_0JK4W_NvQkG-1cyZU/edit#slide=id.gc6f73a04f_0_0)

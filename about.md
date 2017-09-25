@@ -12,6 +12,8 @@ Class time is from **5:30pm to 6:30pm** on **Mondays** at **Kimball B11** starti
 
 Ilan Filonenko (if56) and Joe Antonakakis (jma353) will have office hours in the basement of Gates on Tuesdays from 5:30pm to 6:30pm.
 
+Piazza can be found here: [here](https://piazza.com/class/j802rzmnm2p4o4?cid=1). All Q/A should be directed there.
+
 **Announcements**
 
 **Lecture 1**

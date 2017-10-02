@@ -33,3 +33,7 @@ Lecture 1 slides [here](https://docs.google.com/presentation/d/e/2PACX-1vSlSTeSV
 **Lecture 2**
 
 Lecture 2 slides [here](https://docs.google.com/presentation/d/1AKqaddYDXF8_bDtkvsfJlN9Ny_0JK4W_NvQkG-1cyZU/edit?usp=sharing)
+
+**Lecture 3**
+
+Lecture 3 slides [here](https://docs.google.com/presentation/d/1L75_imiUMpPn2Q-BC_F-uqaxXhxX_vX4n_4AdwWnFTA/edit?usp=sharing)

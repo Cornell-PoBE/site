@@ -20,7 +20,9 @@ In-class demo code can be found [here](https://github.com/Cornell-PoBE/demos).  
 
 **Project Assignments**
 
-Assignment 1 is out and can be found [here](https://github.com/Cornell-PoBE/A1). Due date is on October 9th, 2017. Submission should be done through CMS (to be setup on Wednesday).
+Assignment 1 is out and can be found [here](https://github.com/Cornell-PoBE/A1). Due date is on October 16th, 2017. Submission should be done through CMS (to be setup on Wednesday).
+
+Assignment 2 is out and can be found [here](https://github.com/Cornell-PoBE/A2). Due date is on October 30th, 2017. Submission should be done through CMS.
 
 **Announcements**
 

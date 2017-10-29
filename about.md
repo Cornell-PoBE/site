@@ -39,3 +39,11 @@ Lecture 2 slides [here](https://docs.google.com/presentation/d/1AKqaddYDXF8_bDtk
 **Lecture 3**
 
 Lecture 3 slides [here](https://docs.google.com/presentation/d/1L75_imiUMpPn2Q-BC_F-uqaxXhxX_vX4n_4AdwWnFTA/edit?usp=sharing)
+
+**Lecture 4**
+
+Lecture 4 slides [here](https://docs.google.com/presentation/d/e/2PACX-1vQbuCoZ63orlZDWvKiAQRwOd8VV-CRli9toPR8mfmKsAJl3mWv6nktnTvthINEGuJ--TtmYpNxJ6Zmt/pub)
+
+**Lecture 5**
+
+Lecture 5 slides [here](https://docs.google.com/presentation/d/e/2PACX-1vQUUC1mbbLCjTOXHrU04ziBHXZUN5GTNkQF8wqYqJ06_Lf9bHYgLwS5OGhdpwIRSsbcvYkboaszEGp8/pub)

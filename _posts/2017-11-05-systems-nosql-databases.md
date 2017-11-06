@@ -3,7 +3,7 @@ layout: post
 title: "Systems and NoSQL Databases"
 ---
 
-# (1 Week)
+# (2 Weeks)
 
 # Introduction
 In this section of the course we will be doing a survey into data storage beyond the relational model and RDBMS.

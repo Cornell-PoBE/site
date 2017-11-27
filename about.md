@@ -52,7 +52,7 @@ Lecture 4 slides [here](https://docs.google.com/presentation/d/e/2PACX-1vQbuCoZ6
 
 Lecture 5 slides [here](https://docs.google.com/presentation/d/e/2PACX-1vQUUC1mbbLCjTOXHrU04ziBHXZUN5GTNkQF8wqYqJ06_Lf9bHYgLwS5OGhdpwIRSsbcvYkboaszEGp8/pub)
 
-##Lecture 6**
+**Lecture 6**
 
 Lecture 6 slides [here](https://docs.google.com/presentation/d/e/2PACX-1vSMsyFaABb7QYZI5I6RGqCXpJMYWTXf-mLfv-X2vmaZAWOWGqA0cap7htr_ThXKGMe_W-wjILbAHajR/pub?slide=id.p)
 

@@ -59,3 +59,7 @@ Lecture 6 slides [here](https://docs.google.com/presentation/d/e/2PACX-1vSMsyFaA
 **Lecture 7**
 
 Lecture 7 slides [here](https://docs.google.com/presentation/d/e/2PACX-1vQCs2wUJSBogJ2eiZ9N9X9t4A70oMU1auz9vQGAhg5JurlIQv4M5xBGHcSpmVCol1e9dsQbbnvohy78/pub?slide=id.g29a2df222b_0_109)
+
+**Lecture 8**
+
+Lecture 8 slides [here](https://docs.google.com/presentation/d/e/2PACX-1vRsUPezhJiQZyh321i6gVjU5099coI4VrtXUanlYEAZJOApiPc5kMGhNVWQTiXGTsi9hwNyFdOuzcAq/pub?slide=id.g29f6a8478a_0_0)

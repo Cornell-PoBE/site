@@ -26,13 +26,15 @@ In-class demo code can be found [here](https://github.com/Cornell-PoBE/demos).  
 
 **Project Assignments**
 
-Assignment 1 is out and can be found [here](https://github.com/Cornell-PoBE/A1). Due date is on March 8th, 2018. Submission should be done through CMS (to be setup on Wednesday).
+TBD
+
+<!-- Assignment 1 is out and can be found [here](https://github.com/Cornell-PoBE/A1). Due date is on March 8th, 2018. Submission should be done through CMS (to be setup on Wednesday).
 
 Assignment 2 is out and can be found [here](https://github.com/Cornell-PoBE/A2). Due date is on May 1st, 2018. Submission should be done through CMS.
 
 Assignment 3 is out and can be found [here](https://github.com/Cornell-PoBE/A3). Due date is on May 1st, 2018. Submission should be done through CMS.
 
-All assignments should be completed by our hard-deadline for May 1st, 2018 to pass this course. Circumstances that require more time will be taken into consideration, but must be made clear before the deadline via a private post on Piazza [here](https://piazza.com/class/j802rzmnm2p4o4?cid=1)
+All assignments should be completed by our hard-deadline for May 1st, 2018 to pass this course. Circumstances that require more time will be taken into consideration, but must be made clear before the deadline via a private post on Piazza [here](https://piazza.com/class/j802rzmnm2p4o4?cid=1) -->
 
 **Announcements**
 

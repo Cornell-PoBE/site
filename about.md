@@ -14,7 +14,7 @@ We will have two TAs who will be helping with the instruction of this course
 
 Class time is from **8:30pm to 9:30pm** on **Mondays** at **Olin 155** starting **February, 26th 2018**.
 	
-Ilan Filonenko (if56) will have office hours upon appointment 
+Ilan Filonenko (if56) will have office hours at 5:30pm-6:30pm on Tuesdays @ Gates Basement.
 
 Piazza can be found here: [here](https://piazza.com/class/jd0llnadc3r4dv). All Q/A should be directed there.
 

@@ -14,7 +14,7 @@ We will have two TAs who will be helping with the instruction of this course
 
 Class time is from **8:30pm to 9:30pm** on **Mondays** at **Olin 155** starting **February, 26th 2018**.
 	
-Ilan Filonenko (if56) will have office hours at 5:30pm-6:30pm on Tuesdays @ Gates Basement.
+Ilan Filonenko (if56) and Young Kim (yk465) will have office hours at 5:30pm-6:30pm on Tuesdays in Gates G17.
 
 Piazza can be found here: [here](https://piazza.com/class/jd0llnadc3r4dv). All Q/A should be directed there.
 
@@ -40,4 +40,4 @@ All assignments should be completed by our hard-deadline for May 1st, 2018 to pa
 
 We will let you guys know when to sign up for the course via Student Center. If you wish to audit then you dont need to sign up as you can just attend the lecture and do the programming assignments.
 
-Lecture 1 slides *TO BE POSTED*
+Lecture 1 slides can be found [here](https://docs.google.com/presentation/d/1_TFKs40GKauarF-pm-vXOwB5HKh9rcufG1TrnOcqenQ/edit?usp=sharing)

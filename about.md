@@ -14,7 +14,10 @@ We will have two TAs who will be helping with the instruction of this course
 
 Class time is from **8:30pm to 9:30pm** on **Mondays** at **Olin 155** starting **February, 26th 2018**.
 	
-Ilan Filonenko (if56) and Young Kim (yk465) will have office hours at 5:30pm-6:30pm on Tuesdays in Gates G17.
+Office hours will be held at the following times:
+
+* Ilan Filonenko (if56), 5:30pm-6:30pm on Tuesdays in Gates G17.
+* Young Kim (yk465), 3:00pm-4:00pm on Sundays in Gates G17.
 
 Piazza can be found here: [here](https://piazza.com/class/jd0llnadc3r4dv). All Q/A should be directed there.
 

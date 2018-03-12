@@ -44,3 +44,6 @@ All assignments should be completed by our hard-deadline for May 1st, 2018 to pa
 We will let you guys know when to sign up for the course via Student Center. If you wish to audit then you dont need to sign up as you can just attend the lecture and do the programming assignments.
 
 Lecture 1 slides can be found [here](https://docs.google.com/presentation/d/1_TFKs40GKauarF-pm-vXOwB5HKh9rcufG1TrnOcqenQ/edit?usp=sharing)
+
+**Lecture 2**
+Lecture 2 slides can be found [here](https://docs.google.com/presentation/d/1AKqaddYDXF8_bDtkvsfJlN9Ny_0JK4W_NvQkG-1cyZU/edit?usp=sharing)

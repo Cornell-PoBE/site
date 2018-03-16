@@ -29,7 +29,7 @@ In-class demo code can be found [here](https://github.com/Cornell-PoBE/demos).  
 
 **Project Assignments**
 
-Assignment 1 is out and can be found [here](https://github.com/Cornell-PoBE/A1). Due date is on March 16th, 2018. Submission should be done through CMS (to be setup on Wednesday).
+Assignment 1 is out and can be found [here](https://github.com/Cornell-PoBE/A1). Due date is on March 19th, 2018. Submission should be done through CMS (to be setup on Wednesday).
 
 <!-- Assignment 2 is out and can be found [here](https://github.com/Cornell-PoBE/A2). Due date is on May 1st, 2018. Submission should be done through CMS.
 
@@ -48,3 +48,8 @@ Lecture 1 slides can be found [here](https://docs.google.com/presentation/d/1_TF
 **Lecture 2**
 
 Lecture 2 slides can be found [here](https://docs.google.com/presentation/d/1AKqaddYDXF8_bDtkvsfJlN9Ny_0JK4W_NvQkG-1cyZU/edit?usp=sharing)
+
+**Lecture 3**
+
+Lecture 3 slides can be found [here](https://docs.google.com/presentation/d/1L75_imiUMpPn2Q-BC_F-uqaxXhxX_vX4n_4AdwWnFTA/edit?usp=sharing)
+

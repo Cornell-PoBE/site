@@ -53,3 +53,10 @@ Lecture 2 slides can be found [here](https://docs.google.com/presentation/d/1AKq
 
 Lecture 3 slides can be found [here](https://docs.google.com/presentation/d/1L75_imiUMpPn2Q-BC_F-uqaxXhxX_vX4n_4AdwWnFTA/edit?usp=sharing)
 
+**Lecture 4**
+
+Lecture 4 slides can be found [here](https://docs.google.com/presentation/d/1eWcTW5AlMneg6mzv8PrGfNagf2vOpjD812sOmABOwcs/edit?usp=sharing)
+
+
+
+

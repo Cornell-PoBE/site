@@ -31,11 +31,11 @@ In-class demo code can be found [here](https://github.com/Cornell-PoBE/demos).  
 
 Assignment 1 is out and can be found [here](https://github.com/Cornell-PoBE/A1). Due date was on March 19th, 2018. Submission should be done through CMS.
 
-<!-- Assignment 2 is out and can be found [here](https://github.com/Cornell-PoBE/A2). Due date is on May 1st, 2018. Submission should be done through CMS.
+Assignment 2 is out and can be found [here](https://github.com/Cornell-PoBE/A2). Due date is on May 1st, 2018. Submission should be done through CMS.
 
-Assignment 3 is out and can be found [here](https://github.com/Cornell-PoBE/A3). Due date is on May 1st, 2018. Submission should be done through CMS.
+<!-- Assignment 3 is out and can be found [here](https://github.com/Cornell-PoBE/A3). Due date is on May 1st, 2018. Submission should be done through CMS. -->
 
-All assignments should be completed by our hard-deadline for May 1st, 2018 to pass this course. Circumstances that require more time will be taken into consideration, but must be made clear before the deadline via a private post on Piazza [here](https://piazza.com/class/j802rzmnm2p4o4?cid=1) -->
+All assignments should be completed by our hard-deadline for May 1st, 2018 to pass this course. Circumstances that require more time will be taken into consideration, but must be made clear before the deadline via a private post on Piazza [here](https://piazza.com/class/j802rzmnm2p4o4?cid=1)
 
 **Announcements**
 
@@ -58,5 +58,7 @@ Lecture 3 slides can be found [here](https://docs.google.com/presentation/d/1L75
 Lecture 4 slides can be found [here](https://docs.google.com/presentation/d/1eWcTW5AlMneg6mzv8PrGfNagf2vOpjD812sOmABOwcs/edit?usp=sharing)
 
 
+**Lecture 5**
 
+Lecture 5 slides can be found [here](https://drive.google.com/open?id=1DafxInuGfWF13jbpDjoEX7Q-xdmM3n4uW54E40Yos_Y)
 

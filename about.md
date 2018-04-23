@@ -66,3 +66,6 @@ Lecture 5 slides can be found [here](https://drive.google.com/open?id=1DafxInuGf
 
 Lecture 6 slides can be found [here](https://docs.google.com/presentation/d/1bxquKtoADNG_H4IB2Mr1tA1Gs9rW0pPqPKyPH623z9s/edit?usp=sharing)
 
+**Lecture 7**
+
+Lecture 7 slides can be found [here](https://docs.google.com/presentation/d/1iAx4MRoQuGgj5OdjRDwgMlJP2scZsOqtxIR0cpc1FyY/edit?usp=sharing)

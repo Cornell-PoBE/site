@@ -69,3 +69,7 @@ Lecture 6 slides can be found [here](https://docs.google.com/presentation/d/1bxq
 **Lecture 7**
 
 Lecture 7 slides can be found [here](https://docs.google.com/presentation/d/1iAx4MRoQuGgj5OdjRDwgMlJP2scZsOqtxIR0cpc1FyY/edit?usp=sharing)
+
+**Lecture 8**
+
+Lecture 8 slides can be found [here](https://docs.google.com/presentation/d/1ellcqLKU4Yf8xUG9i61ui-6eV_wqiH0321oJQH4Gqcs/edit?usp=sharing)
